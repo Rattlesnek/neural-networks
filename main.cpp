@@ -1,6 +1,5 @@
 #include <iostream>
-
-#include "Matrix.h"
+#include "MathLib.hpp"
 
 using namespace mathlib;
 

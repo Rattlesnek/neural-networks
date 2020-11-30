@@ -3,7 +3,7 @@
 
 using namespace mathlib;
 
-TEST(MatrixTest, Example)
+TEST(MatrixTest, MatrixAssignment)
 {
     Matrix mat(5, 5);
     mat(0, 0) = 10.0;
