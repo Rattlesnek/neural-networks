@@ -1,0 +1,15 @@
+#!/bin/bash
+
+# Load needed modules
+source load_modules.sh
+
+# Create build directory
+mkdir build/
+cd build/
+
+# Build project
+cmake ..
+make -j4
+
+# Run main
+./main
