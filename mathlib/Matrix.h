@@ -3,7 +3,7 @@
 #include <vector>
 #include <functional>
 #include <iostream>
-
+#include "MatrixException.h"
 namespace mathlib
 {
 
@@ -15,15 +15,15 @@ private:
     int cols;
 
     std::vector<double> mat;
-    friend std::ostream& operator<<(std::ostream &stream, const Matrix &m);
-    
-    
     // Constructors / destructor
 public:
     Matrix (){}
     Matrix(int rows, int cols);
+    Matrix(const Matrix& m);
 
     // Methods
+    const int getRows() const noexcept {return rows;};
+    const int getCols() const noexcept {return cols;};
 public:
     void setDimensions(int rows, int cols);
 
@@ -33,33 +33,22 @@ public:
 
     void print() const;
     
-    
+    Matrix operator+(Matrix m);
+
+    Matrix operator*(Matrix m); 
+
+    // Matrix product(Matrix m);
+
+    Matrix applyFunc(std::function<double(double)> func);
+
+    // Matrix transpose();
+
+    // Matrix times(double x);
 
     
-    // Matrix operator+(Matrix m);
-    // Matrix operator*(Matrix m); exception (wrong dimensions)
-    // Matrix product(Matrix m);
-    Matrix applyFunc(std::function<double(double)> func);
-    // Matrix transpose();
-    // Matrix times(double x);
 };
 
-std::ostream& operator<<(std::ostream &stream, const Matrix &m)
-{
-    for (int c = 0; c < m.cols;c++){
-            stream << "  - ";
-        }
-    stream << std::endl;
-    for (int r = 0; r < m.rows; r++){
-        for (int c = 0; c < m.cols; c++){
-            stream << "| " << m(r,c) << " ";
-        }
-        stream << "|" << std::endl;
-        for (int c = 0; c < m.cols;c++){
-            stream << "  - ";
-        }
-        stream << std::endl;
-    }
-    return stream;
-}
+
+std::ostream& operator<<(std::ostream &stream, const Matrix &m);
+
 }
