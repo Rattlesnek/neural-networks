@@ -13,6 +13,7 @@ int main()
     mat(2, 0) = 3;
 
     mat.print();
+    std::cout << mat;
 
     return 0;
 }

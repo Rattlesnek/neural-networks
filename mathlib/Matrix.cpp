@@ -1,13 +1,15 @@
+
+
 #include "Matrix.h"
-#include <iostream>
 
 using namespace mathlib;
-
 
 Matrix::Matrix(int rows, int cols) :
     rows(rows), cols(cols), mat(rows * cols)
 {
 }
+
+
 
 
 void Matrix::setDimensions(int rows, int cols)
@@ -32,6 +34,7 @@ double Matrix::operator()(int row, int col) const
 }
 
 
+// make >> operator overload
 void Matrix::print() const
 {
     for (int i = 0; i < rows; i++)
@@ -43,3 +46,10 @@ void Matrix::print() const
         std::cout << std::endl;
     }
 }
+
+
+Matrix applyFunc(std::function<int(int)> func)
+{
+    return Matrix(1,2);
+}
+
