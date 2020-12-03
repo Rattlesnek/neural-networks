@@ -34,8 +34,11 @@ double Matrix::operator()(int row, int col) const
     return mat[row * cols + col];
 }
 
+double& Matrix::operator[](int i)
+{
+    return mat[i];
+}
 
-// make >> operator overload
 void Matrix::print() const
 {
     for (int i = 0; i < rows; i++)
@@ -60,6 +63,7 @@ Matrix Matrix::operator+(Matrix m2)
             m(r,c) = m1(r,c) + m2(r,c);
         }
     }
+    return m;
 }
 
 Matrix Matrix::operator*(Matrix m2)
@@ -67,7 +71,7 @@ Matrix Matrix::operator*(Matrix m2)
     const Matrix& m1 = *this;
     Matrix m = Matrix(m1.rows, m2.cols);
     if (m1.cols != m2.rows){
-        throw MatrixWrongDimensionsException("Wrong dimensions,can't multiply");
+        throw MatrixWrongDimensionsException("Wrong dimensions, can't multiply");
     }
     for (int r = 0; r < m.rows; r++)
     {
@@ -85,7 +89,32 @@ Matrix Matrix::operator*(Matrix m2)
 
 Matrix Matrix::applyFunc(std::function<double(double)> func)
 {
-    return Matrix(1,2);
+    const Matrix m = *this;
+    Matrix mo = Matrix(*this);
+    for (int i = 0; i < m.rows; i++){
+        for (int j = 0; j < m.cols; j++){
+            mo(i,j) = func(m(i,j));
+        }
+    } 
+    return mo;
+}
+
+double addThing(double n)
+{
+    double x = n + 3.8;
+    return x;
+}
+
+Matrix Matrix::T()
+{
+    const Matrix m = *this;
+    Matrix tm = Matrix(m.cols, m.rows);
+    for (int i = 0; i < m.rows; i++){
+        for (int j = 0; j < m.cols; j++){
+            tm(j,i) = m(i,j);
+        }
+    }
+    return tm;
 }
 
 std::ostream& operator<<(std::ostream &stream, const Matrix &m)
@@ -106,4 +135,5 @@ std::ostream& operator<<(std::ostream &stream, const Matrix &m)
     }
     return stream;
 }
+
 }

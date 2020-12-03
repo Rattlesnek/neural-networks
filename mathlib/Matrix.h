@@ -30,7 +30,7 @@ public:
     double& operator()(int row, int col);
 
     double operator()(int row, int col) const;
-
+    double& operator[](int i); // added this so we can more easily generate matrices for testing
     void print() const;
     
     Matrix operator+(Matrix m);
@@ -41,14 +41,14 @@ public:
 
     Matrix applyFunc(std::function<double(double)> func);
 
-    // Matrix transpose();
+    Matrix T();
 
     // Matrix times(double x);
 
     
 };
 
-
-std::ostream& operator<<(std::ostream &stream, const Matrix &m);
+double addThing(double n);
+std::ostream& mathlib::operator<<(std::ostream &stream, const Matrix &m);
 
 }
