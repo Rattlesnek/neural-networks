@@ -3,6 +3,7 @@
 #include <vector>
 #include <functional>
 #include <iostream>
+#include <memory>
 
 namespace mathlib
 {
@@ -25,9 +26,9 @@ public:
 
     // Methods 
 public:
-    int getRows() const noexcept;
+    const int getRows() const noexcept;
 
-    int getCols() const noexcept;
+    const int getCols() const noexcept;
 
     void setDimensions(int rows, int cols);
 
@@ -37,6 +38,9 @@ public:
 
     Matrix T() const;
 
+    double sum() const;
+
+
     // Operators
 public:
     double& operator()(int row, int col);
@@ -45,11 +49,12 @@ public:
 
     double& operator[](int i); // added this so we can more easily generate matrices for testing
     
-    Matrix operator+(Matrix m) const;
+    double operator[](int i) const;
 
-    Matrix operator*(Matrix m) const; 
+    Matrix operator+(const Matrix& m2) const;
 
-    // Matrix times(double x);
+    Matrix operator*(const Matrix& m2) const;
+
     friend std::ostream& operator<<(std::ostream& stream, const Matrix& m);
 };
 

@@ -9,20 +9,20 @@ Matrix::Matrix(int rows, int cols) :
 }
 
 Matrix::Matrix(int rows, int cols, std::vector<double> vec) :
-    rows(rows), cols(cols), mat(vec)
+    rows(rows), cols(cols), mat(std::move(vec))
 {
-    if (vec.size() != rows * cols)
+    if (mat.size() != rows * cols)
     {
         throw MatrixException("Could not construct Matrix. Incorect vector size!"); 
     }
 }
 
-int Matrix::getRows() const noexcept
+const int Matrix::getRows() const noexcept
 {
     return rows;
 }
 
-int Matrix::getCols() const noexcept 
+const int Matrix::getCols() const noexcept 
 {
     return cols;
 }
@@ -78,6 +78,17 @@ Matrix Matrix::T() const
     return tm;
 }
 
+double Matrix::sum() const
+{
+    const Matrix& m = *this;
+    double out = 0.0;
+    for (int i = 0; i < m.cols * m.rows; i++ )
+    {
+        out += m[i];
+    }
+    return out;
+}
+
 double& Matrix::operator()(int row, int col)
 {
     return mat[row * cols + col];
@@ -93,7 +104,12 @@ double& Matrix::operator[](int i)
     return mat[i];
 }
 
-Matrix Matrix::operator+(Matrix m2) const
+double Matrix::operator[](int i) const
+{
+    return mat[i];
+}
+
+Matrix Matrix::operator+(const Matrix& m2) const
 {
     const Matrix& m1 = *this;
     if (m1.cols != m2.cols || m1.rows != m2.rows)
@@ -112,7 +128,7 @@ Matrix Matrix::operator+(Matrix m2) const
     return m;
 }
 
-Matrix Matrix::operator*(Matrix m2) const
+Matrix Matrix::operator*(const Matrix& m2) const
 {
     const Matrix& m1 = *this;
     if (m1.cols != m2.rows)
@@ -136,19 +152,19 @@ Matrix Matrix::operator*(Matrix m2) const
 
 std::ostream& mathlib::operator<<(std::ostream& stream, const Matrix& m)
 {
-    for (int c = 0; c < m.Matrix::getCols();c++)
+    for (int c = 0; c < m.getCols();c++)
     {
         stream << "  - ";
     }
     stream << std::endl;
-    for (int r = 0; r < m.Matrix::getRows(); r++)
+    for (int r = 0; r < m.getRows(); r++)
     {
-        for (int c = 0; c < m.Matrix::getCols(); c++)
+        for (int c = 0; c < m.getCols(); c++)
         {
             stream << "| " << m(r,c) << " ";
         }
         stream << "|" << std::endl;
-        for (int c = 0; c < m.Matrix::getCols();c++)
+        for (int c = 0; c < m.getCols();c++)
         {
             stream << "  - ";
         }

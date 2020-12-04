@@ -30,20 +30,9 @@ TEST(MatrixTest, MatrixAdditionException)
 
 TEST(MatrixTest, MatrixMultiplication)
 {
-    Matrix mat1(2,3);
-    Matrix mat2(3,2);
-    mat1(0,0) = 1;
-    mat1(0,1) = 2;
-    mat1(0,2) = 3;
-    mat1(1,0) = 4;
-    mat1(1,1) = 5;
-    mat1(1,2) = 6;
-    mat2(0,0) = 7;
-    mat2(0,1) = 8;
-    mat2(1,0) = 9;
-    mat2(1,1) = 10;
-    mat2(2,0) = 11;
-    mat2(2,1) = 12;
+    
+    Matrix mat1(2,3,{1,2,3,4,5,6});
+    Matrix mat2(3,2,{7,8,9,10,11,12});
     Matrix outcome = mat1 * mat2;
     EXPECT_EQ(outcome(0,0), 58);
     EXPECT_EQ(outcome(0,1), 64);
@@ -63,9 +52,18 @@ TEST(MatrixTest, TransposeBasic)
     EXPECT_EQ(Tmat(2,1),5);
 }
 
-TEST(MatrixTest, ApplyFunctionBasic){
+TEST(MatrixTest, ApplyFunctionBasic)
+    {
     Matrix m(2,2);
     Matrix mOut = m.applyFunc([](double x) -> double { return x + 3.8; });
     EXPECT_EQ(mOut(0,0), 3.8);
     EXPECT_EQ(mOut(1,0), 3.8);
+}
+
+TEST(MatrixTest, BasicSumTest)
+{
+    Matrix m(2, 2, {1.0,1.0,1.0,1.0});
+    Matrix m1(2, 2, {0.9,1.1,0.54,0.46});
+    EXPECT_EQ(m.sum(), 4);
+    EXPECT_EQ(m1.sum(), 3);
 }
