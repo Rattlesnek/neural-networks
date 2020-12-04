@@ -3,14 +3,17 @@
 #include <stdexcept>
 #include <string>
 
-namespace mathlib{
-
-class MatrixWrongDimensionsException : public std::runtime_error
+namespace mathlib
 {
-    public:
-        explicit MatrixWrongDimensionsException(const std::string& msg) :
+
+class MatrixException : public std::runtime_error
+{
+    // Constructors / destructor
+public:
+    explicit MatrixException(const std::string& msg) :
         std::runtime_error(msg)
-        {
-        }
+    {
+    }
 };
+
 }
