@@ -38,14 +38,7 @@ void Matrix::setDimensions(int rows, int cols)
 
 void Matrix::print() const
 {
-    for (int i = 0; i < rows; i++)
-    {
-        for (int j = 0; j < cols; j++)
-        {
-            std::cout << mat[i * cols + j] << "\t";
-        }
-        std::cout << std::endl;
-    }
+    std::cout << *this;
 }
 
 Matrix Matrix::applyFunc(std::function<double(double)> func) const
@@ -152,23 +145,14 @@ Matrix Matrix::operator*(const Matrix& m2) const
 
 std::ostream& mathlib::operator<<(std::ostream& stream, const Matrix& m)
 {
-    for (int c = 0; c < m.getCols();c++)
-    {
-        stream << "  - ";
-    }
-    stream << std::endl;
+    stream << "[" << std::endl;
     for (int r = 0; r < m.getRows(); r++)
     {
         for (int c = 0; c < m.getCols(); c++)
         {
-            stream << "| " << m(r,c) << " ";
+            stream << "\t" << m(r,c) << ((c < m.getCols()-1) ? "," : ";\n");
         }
-        stream << "|" << std::endl;
-        for (int c = 0; c < m.getCols();c++)
-        {
-            stream << "  - ";
-        }
-        stream << std::endl;
     }
+    stream << "]" << std::endl;
     return stream;
 }
