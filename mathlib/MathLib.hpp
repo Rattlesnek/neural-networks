@@ -3,4 +3,4 @@
 #include "Matrix.h"
 #include "MatrixException.h"
 
-#include "ActivationFunc.h"
+#include "activation/Activation.hpp"
