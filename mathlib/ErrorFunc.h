@@ -1,5 +1,5 @@
 #pragma once
-#include <vector>
+#include "Matrix.h"
 
 namespace mathlib
 {
@@ -13,7 +13,7 @@ public:
     // Methods
 public:
 
-    static double categoricalCrossentropy(const std::vector<double>& outputs, const std::vector<double>& labels);
+    static double categoricalCrossentropy(const Matrix& predictions, const Matrix& labels);
 
 };
 
