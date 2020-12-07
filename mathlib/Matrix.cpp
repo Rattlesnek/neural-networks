@@ -1,6 +1,9 @@
 #include "Matrix.h"
 #include "MatrixException.h"
 
+#include <memory>
+#include <numeric>
+
 using namespace mathlib;
 
 Matrix::Matrix(int rows, int cols) :
@@ -25,6 +28,11 @@ const int Matrix::getRows() const noexcept
 const int Matrix::getCols() const noexcept 
 {
     return cols;
+}
+
+const std::vector<double>& Matrix::getVector() const noexcept
+{
+    return mat;
 }
 
 void Matrix::setDimensions(int rows, int cols)
@@ -73,33 +81,37 @@ Matrix Matrix::T() const
 
 double Matrix::sum() const
 {
-    const Matrix& m = *this;
-    double out = 0.0;
-    for (int i = 0; i < m.cols * m.rows; i++ )
-    {
-        out += m[i];
-    }
-    return out;
+    return std::accumulate(mat.begin(), mat.end(), 0.0);
+}
+
+std::vector<double>::iterator Matrix::begin()
+{
+    return mat.begin();
+}
+
+std::vector<double>::iterator Matrix::end()
+{
+    return mat.end();
 }
 
 double& Matrix::operator()(int row, int col)
 {
-    return mat[row * cols + col];
+    return mat.at(row * cols + col); // change to [] in future
 }
 
 double Matrix::operator()(int row, int col) const
 {
-    return mat[row * cols + col];
+    return mat.at(row * cols + col); // change to [] in future
 }
 
 double& Matrix::operator[](int i)
 {
-    return mat[i];
+    return mat.at(i); // change to [] in future
 }
 
 double Matrix::operator[](int i) const
 {
-    return mat[i];
+    return mat.at(i); // change to [] in future
 }
 
 Matrix Matrix::operator+(const Matrix& m2) const

@@ -3,7 +3,6 @@
 #include <vector>
 #include <functional>
 #include <iostream>
-#include <memory>
 
 namespace mathlib
 {
@@ -30,6 +29,8 @@ public:
 
     const int getCols() const noexcept;
 
+    const std::vector<double>& getVector() const noexcept;
+
     void setDimensions(int rows, int cols);
 
     void print() const;
@@ -40,6 +41,9 @@ public:
 
     double sum() const;
 
+    std::vector<double>::iterator begin();
+
+    std::vector<double>::iterator end();
 
     // Operators
 public:
