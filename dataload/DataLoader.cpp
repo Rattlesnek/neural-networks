@@ -2,9 +2,6 @@
 #include "EOFException.h"
 #include "DataLoadInternalException.h"
 
-using std::vector;
-using std::string;
-using std::getline;
 using namespace dataload;
 DataLoader::DataLoader(std::string pathVec, std::string pathLabels)
 {
@@ -26,18 +23,18 @@ DataLoader::~DataLoader()
     labels.close();
 }
 
-PicData DataLoader::loadPicture()
+PicData DataLoader::loadPicture(int rows, int cols)
 {
-    string line;
-    string label;
-    vector<float> vec;
+    std::string line;
+    std::string label;
+    std::vector<float> vec;
     if (!std::getline(imageVecs, line))
     {
         throw EOFException("end of file vectors reached!");
     }
     
     std::stringstream ssline(line);
-    string val;
+    std::string val;
     int oneHotIndex;
     while (std::getline(ssline, val, ','))
     {
@@ -51,19 +48,19 @@ PicData DataLoader::loadPicture()
     {
         throw EOFException("end of file labels reached!");
     }
-    PicData pic(vec, oneHotIndex);
+    PicData pic(vec, oneHotIndex, rows, cols);
 
     return pic;
 }
 
-std::vector<PicData> DataLoader::loadAllData()
+std::vector<PicData> DataLoader::loadAllData(int rows, int cols)
 {
     std::vector<PicData> pics;
     while (true)
     {
         try
         {
-            pics.push_back(loadPicture());
+            pics.push_back(loadPicture(rows, cols));
         }
         catch(const std::exception& e)
         {

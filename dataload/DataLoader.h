@@ -8,7 +8,6 @@
 #include <sstream>
 
 
-
 class DataLoader
 {
     //Files
@@ -23,6 +22,6 @@ public:
 
     // Methods
 public:
-    PicData loadPicture();
-    std::vector<PicData> loadAllData();
+    PicData loadPicture(int rows, int cols);
+    std::vector<PicData> loadAllData(int rows, int cols);
 };

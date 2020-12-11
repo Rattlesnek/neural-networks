@@ -16,7 +16,7 @@ private:
 
     // Constructors / destructor
 public:
-    PicData(std::vector<float> vec, int i);
+    PicData(std::vector<float> vec, int label, int rows, int cols);
 
     // Methods
 public:

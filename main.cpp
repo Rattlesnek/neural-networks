@@ -25,8 +25,8 @@ int main()
     std::cout << "TRANSPOSED" << std::endl;
     std::cout << Tmat;
 
-    DataLoader dl("../data/fashion_mnist_train_vectors.csv","../data/fashion_mnist_train_labels.csv");
-    std::vector<PicData> pd = dl.DataLoader::loadAllData();
+    DataLoader dl("../data/fashion_mnist_train_vectors.csv", "../data/fashion_mnist_train_labels.csv");
+    std::vector<PicData> pd = dl.DataLoader::loadAllData(28,28);
     std::cout << pd[1].getMat() << '\n';
     std::cout << pd[1].getLabel() << '\n';
 

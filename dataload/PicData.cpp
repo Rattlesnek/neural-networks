@@ -8,12 +8,14 @@ void PicData::createOneHotVector(int i)
     label = mat;
 }
 
-PicData::PicData(std::vector<float> vec, int i) :
-    mat(Matrix(28,28, vec))
+PicData::PicData(std::vector<float> vec, int label, int rows, int cols) :
+    mat(Matrix(rows, cols, vec))
 {
     mat.applyFunc([](float x) -> float { return x/255; });
-    createOneHotVector(i);
+    createOneHotVector(label);
 }
+
+
 
 const Matrix PicData::getMat() const noexcept
 {
