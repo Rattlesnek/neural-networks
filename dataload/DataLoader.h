@@ -7,7 +7,8 @@
 #include <fstream>
 #include <sstream>
 
-
+namespace dataload 
+{
 class DataLoader
 {
     //Files
@@ -25,3 +26,4 @@ public:
     PicData loadPicture(int rows, int cols);
     std::vector<PicData> loadAllData(int rows, int cols);
 };
+}

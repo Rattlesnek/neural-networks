@@ -52,8 +52,6 @@ void Matrix::print() const
 void Matrix::applyFunc(std::function<float(float)> func)
 {
     Matrix& m = *this;
-    Matrix mo(m.rows, m.cols);
-
     for (int i = 0; i < m.rows; i++)
     {
         for (int j = 0; j < m.cols; j++)

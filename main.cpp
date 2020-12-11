@@ -6,7 +6,7 @@
 
 using namespace mathlib;
 using namespace mathlib::activation;
-
+using namespace dataload;
 int main()
 {   
     Matrix mat1(2,3,{1,2,3,4,5,6});

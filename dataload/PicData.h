@@ -2,15 +2,16 @@
 
 #include "Matrix.h"
 
-using namespace mathlib;
 
+namespace dataload
+{
 class PicData 
 {
 
     // Matrices
 private:
-    Matrix mat;
-    Matrix label;
+    mathlib::Matrix mat;
+    mathlib::Matrix label;
 
     void createOneHotVector(int i);
 
@@ -20,6 +21,7 @@ public:
 
     // Methods
 public:
-    const Matrix getMat() const noexcept;
-    const Matrix getLabel() const noexcept;
+    const mathlib::Matrix getMat() const noexcept;  
+    const mathlib::Matrix getLabel() const noexcept;
 };
+}

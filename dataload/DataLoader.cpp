@@ -3,6 +3,7 @@
 #include "DataLoadInternalException.h"
 
 using namespace dataload;
+
 DataLoader::DataLoader(std::string pathVec, std::string pathLabels)
 {
     imageVecs.open(pathVec, std::ios::in);
@@ -38,7 +39,7 @@ PicData DataLoader::loadPicture(int rows, int cols)
     int oneHotIndex;
     while (std::getline(ssline, val, ','))
     {
-        vec.push_back(std::stof(val));
+        vec.emplace_back(std::stof(val));
     }
     if (std::getline(labels, label))
     {
@@ -60,7 +61,7 @@ std::vector<PicData> DataLoader::loadAllData(int rows, int cols)
     {
         try
         {
-            pics.push_back(loadPicture(rows, cols));
+            pics.emplace_back(loadPicture(rows, cols));
         }
         catch(const std::exception& e)
         {
