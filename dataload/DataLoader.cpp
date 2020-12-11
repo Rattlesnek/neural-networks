@@ -1,22 +1,45 @@
 #include "DataLoader.h" 
-
+#include "EOFException.h"
+#include "DataLoadInternalException.h"
 
 using std::vector;
 using std::string;
 using std::getline;
-
-PicData DataLoader::loadPicture(std::ifstream& imageFile, std::ifstream& labels)
+using namespace dataload;
+DataLoader::DataLoader(std::string pathVec, std::string pathLabels)
 {
-    PicData pic;
+    imageVecs.open(pathVec, std::ios::in);
+    if(!imageVecs)
+    {
+        throw DataLoadInternalException("Open file pathVec failed!");
+    }
+    labels.open(pathLabels, std::ios::in);
+    if(!labels)
+    {
+        throw DataLoadInternalException("Open file pathLabels failed!");
+    }
+}
+
+DataLoader::~DataLoader()
+{
+    imageVecs.close();
+    labels.close();
+}
+
+PicData DataLoader::loadPicture()
+{
     string line;
     string label;
     vector<float> vec;
-    std::getline(imageFile, line);
+    if (!std::getline(imageVecs, line))
+    {
+        throw EOFException("end of file vectors reached!");
+    }
     
-    std::stringstream sline(line);
+    std::stringstream ssline(line);
     string val;
     int oneHotIndex;
-    while (std::getline(sline, val, ','))
+    while (std::getline(ssline, val, ','))
     {
         vec.push_back(std::stof(val));
     }
@@ -24,6 +47,31 @@ PicData DataLoader::loadPicture(std::ifstream& imageFile, std::ifstream& labels)
     {
         oneHotIndex = std::stoi(label);
     }
-    pic = PicData(vec,oneHotIndex);
+    else
+    {
+        throw EOFException("end of file labels reached!");
+    }
+    PicData pic(vec, oneHotIndex);
+
     return pic;
+}
+
+std::vector<PicData> DataLoader::loadAllData()
+{
+    std::vector<PicData> pics;
+    while (true)
+    {
+        try
+        {
+            pics.push_back(loadPicture());
+        }
+        catch(const std::exception& e)
+        {
+            std::cout << "end of file!\n";
+            break;
+        }
+    }
+    std::cout << pics[0].getMat() << '\n';
+    std::cout << pics[0].getLabel() << '\n';
+    return pics;
 }

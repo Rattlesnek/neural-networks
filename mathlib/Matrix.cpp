@@ -49,19 +49,19 @@ void Matrix::print() const
     std::cout << *this;
 }
 
-Matrix Matrix::applyFunc(std::function<float(float)> func) const
+void Matrix::applyFunc(std::function<float(float)> func)
 {
-    const Matrix& m = *this;
+    Matrix& m = *this;
     Matrix mo(m.rows, m.cols);
 
     for (int i = 0; i < m.rows; i++)
     {
         for (int j = 0; j < m.cols; j++)
         {
-            mo(i,j) = func(m(i,j));
+            m(i,j) = func(m(i,j));
         }
     } 
-    return mo;
+    
 }
 
 Matrix Matrix::T() const
@@ -155,6 +155,12 @@ Matrix Matrix::operator*(const Matrix& m2) const
     return m;
 }
 
+float mathlib::round(float i)
+{
+    float value = (int)(i * 10000 + .5); 
+    return (float)value / 10000;
+}
+
 std::ostream& mathlib::operator<<(std::ostream& stream, const Matrix& m)
 {
     stream << "[" << std::endl;
@@ -162,9 +168,10 @@ std::ostream& mathlib::operator<<(std::ostream& stream, const Matrix& m)
     {
         for (int c = 0; c < m.getCols(); c++)
         {
-            stream << "\t" << m(r,c) << ((c < m.getCols()-1) ? "," : ";\n");
+            stream << "\t" << round(m(r,c)) << ((c < m.getCols()-1) ? "," : ";\n");
         }
     }
     stream << "]" << std::endl;
     return stream;
 }
+

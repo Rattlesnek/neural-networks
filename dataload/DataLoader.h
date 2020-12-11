@@ -11,14 +11,18 @@
 
 class DataLoader
 {
+    //Files
 private:
     std::ifstream imageVecs;
     std::ifstream labels;
+
+    //Constructors / destructor
 public:
     DataLoader(std::string pathVec, std::string pathLabels);
+    ~DataLoader();
 
+    // Methods
 public:
-    PicData loadPicture(std::ifstream& image, std::ifstream& labels);
-
-    void normPicData(std::vector<float>& picVec);
+    PicData loadPicture();
+    std::vector<PicData> loadAllData();
 };

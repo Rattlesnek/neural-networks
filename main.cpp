@@ -1,5 +1,7 @@
 #include <iostream>
 #include "MathLib.hpp"
+#include "DataLoad.hpp"
+
 #include <memory>
 
 using namespace mathlib;
@@ -23,16 +25,10 @@ int main()
     std::cout << "TRANSPOSED" << std::endl;
     std::cout << Tmat;
 
-    std::ifstream testimg;
-    std::ifstream testlabel;
-    std::string line;
-    PicData pd = PicData();
-    testimg.open("../data/fashion_mnist_train_vectors.csv");
-    testlabel.open("../data/fashion_mnist_train_labels.csv");
-    std::getline(testlabel,line);
-    std:: cout << line << "\n";
-    DataLoader::loadPicture(pd, testimg, testlabel);
-    
+    DataLoader dl("../data/fashion_mnist_train_vectors.csv","../data/fashion_mnist_train_labels.csv");
+    std::vector<PicData> pd = dl.DataLoader::loadAllData();
+    std::cout << pd[1].getMat() << '\n';
+    std::cout << pd[1].getLabel() << '\n';
 
     return 0;
 }
