@@ -1,6 +1,9 @@
 #include "Matrix.h"
 #include "MatrixException.h"
 
+#include <memory>
+#include <numeric>
+
 using namespace mathlib;
 
 Matrix::Matrix(int rows, int cols) :
@@ -8,7 +11,7 @@ Matrix::Matrix(int rows, int cols) :
 {
 }
 
-Matrix::Matrix(int rows, int cols, std::vector<double> vec) :
+Matrix::Matrix(int rows, int cols, std::vector<float> vec) :
     rows(rows), cols(cols), mat(std::move(vec))
 {
     if (mat.size() != rows * cols)
@@ -27,13 +30,18 @@ const int Matrix::getCols() const noexcept
     return cols;
 }
 
+const std::vector<float>& Matrix::getVector() const noexcept
+{
+    return mat;
+}
+
 void Matrix::setDimensions(int rows, int cols)
 {
     this->rows = rows;
     this->cols = cols;
 
     mat.resize(rows * cols);
-    std::fill(mat.begin(), mat.end(), 0);
+    std::fill(mat.begin(), mat.end(), 0.f);
 }
 
 void Matrix::print() const
@@ -41,7 +49,7 @@ void Matrix::print() const
     std::cout << *this;
 }
 
-Matrix Matrix::applyFunc(std::function<double(double)> func) const
+Matrix Matrix::applyFunc(std::function<float(float)> func) const
 {
     const Matrix& m = *this;
     Matrix mo(m.rows, m.cols);
@@ -71,35 +79,39 @@ Matrix Matrix::T() const
     return tm;
 }
 
-double Matrix::sum() const
+float Matrix::sum() const
 {
-    const Matrix& m = *this;
-    double out = 0.0;
-    for (int i = 0; i < m.cols * m.rows; i++ )
-    {
-        out += m[i];
-    }
-    return out;
+    return std::accumulate(mat.begin(), mat.end(), 0.0);
 }
 
-double& Matrix::operator()(int row, int col)
+std::vector<float>::iterator Matrix::begin()
 {
-    return mat[row * cols + col];
+    return mat.begin();
 }
 
-double Matrix::operator()(int row, int col) const
+std::vector<float>::iterator Matrix::end()
 {
-    return mat[row * cols + col];
+    return mat.end();
 }
 
-double& Matrix::operator[](int i)
+float& Matrix::operator()(int row, int col)
 {
-    return mat[i];
+    return mat.at(row * cols + col); // change to [] in future
 }
 
-double Matrix::operator[](int i) const
+float Matrix::operator()(int row, int col) const
 {
-    return mat[i];
+    return mat.at(row * cols + col); // change to [] in future
+}
+
+float& Matrix::operator[](int i)
+{
+    return mat.at(i); // change to [] in future
+}
+
+float Matrix::operator[](int i) const
+{
+    return mat.at(i); // change to [] in future
 }
 
 Matrix Matrix::operator+(const Matrix& m2) const
