@@ -49,19 +49,16 @@ void Matrix::print() const
     std::cout << *this;
 }
 
-Matrix Matrix::applyFunc(std::function<float(float)> func) const
+void Matrix::applyFunc(std::function<float(float)> func)
 {
-    const Matrix& m = *this;
-    Matrix mo(m.rows, m.cols);
-
+    Matrix& m = *this;
     for (int i = 0; i < m.rows; i++)
     {
         for (int j = 0; j < m.cols; j++)
         {
-            mo(i,j) = func(m(i,j));
+            m(i,j) = func(m(i,j));
         }
     } 
-    return mo;
 }
 
 Matrix Matrix::T() const

@@ -35,7 +35,7 @@ public:
 
     void print() const;
 
-    Matrix applyFunc(std::function<float(float)> func) const;
+    void applyFunc(std::function<float(float)> func);
 
     Matrix T() const;
 

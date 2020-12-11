@@ -10,29 +10,23 @@ class ReLU : public IActivation
 public:
     virtual Matrix call(Matrix mat) override
     {
-        for (auto& elem : mat)
-        {
-            elem = relu(elem);
-        }
+        mat.applyFunc(relu);
         return mat;
     }
 
     virtual Matrix callDerivative(Matrix mat) override
     {
-        for (auto& elem : mat)
-        {
-            elem = reluDerivative(elem);
-        }
+        mat.applyFunc(reluDerivative);
         return mat;
     }
 
-private:
-    float relu(float x)
+public:
+    static float relu(float x)
     {
         return (x > 0.f) ? x : 0.f;
     }
 
-    float reluDerivative(float x)
+    static float reluDerivative(float x)
     {
         return (x > 0.f) ? 1.f : 0.f;
     }

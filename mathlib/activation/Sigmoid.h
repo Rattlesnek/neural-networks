@@ -11,29 +11,23 @@ class Sigmoid : public IActivation
 public:
     virtual Matrix call(Matrix mat) override
     {
-        for (auto& elem : mat)
-        {
-            elem = sigmoid(elem);
-        }
+        mat.applyFunc(sigmoid);
         return mat;
     }
 
     virtual Matrix callDerivative(Matrix mat) override
     {
-        for (auto& elem : mat)
-        {
-            elem = sigmoidDerivative(elem);
-        }
+        mat.applyFunc(sigmoidDerivative);
         return mat;
     }
 
-private:
-    float sigmoid(float x)
+public:
+    static float sigmoid(float x)
     {
         return 1.f / (1.f + std::exp(-x)); 
     }
 
-    float sigmoidDerivative(float x)
+    static float sigmoidDerivative(float x)
     {
         return sigmoid(x) * (1.f - sigmoid(x));
     }
