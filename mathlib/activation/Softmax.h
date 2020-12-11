@@ -12,9 +12,9 @@ class Softmax : public IActivation
 public:
     virtual Matrix call(Matrix mat) override
     {
-        std::for_each(mat.begin(), mat.end(), [](double& x){ x = std::exp(x); });
-        double sum = mat.sum();
-        std::for_each(mat.begin(), mat.end(), [&](double& x){ x = x / sum; });
+        std::for_each(mat.begin(), mat.end(), [](float& x){ x = std::exp(x); });
+        float sum = mat.sum();
+        std::for_each(mat.begin(), mat.end(), [&](float& x){ x = x / sum; });
         return mat;
     }
 

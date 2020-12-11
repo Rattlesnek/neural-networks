@@ -28,14 +28,14 @@ public:
     }
 
 private:
-    double sigmoid(double x)
+    float sigmoid(float x)
     {
-        return 1.0 / (1.0 + std::exp(-x)); 
+        return 1.f / (1.f + std::exp(-x)); 
     }
 
-    double sigmoidDerivative(double x)
+    float sigmoidDerivative(float x)
     {
-        return sigmoid(x) * (1.0 - sigmoid(x));
+        return sigmoid(x) * (1.f - sigmoid(x));
     }
 };
 

@@ -27,14 +27,14 @@ public:
     }
 
 private:
-    double relu(double x)
+    float relu(float x)
     {
-        return (x > 0.0) ? x : 0.0;
+        return (x > 0.f) ? x : 0.f;
     }
 
-    double reluDerivative(double x)
+    float reluDerivative(float x)
     {
-        return (x > 0.0) ? 1.0 : 0.0;
+        return (x > 0.f) ? 1.f : 0.f;
     }
 };
 

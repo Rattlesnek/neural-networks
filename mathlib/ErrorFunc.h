@@ -13,7 +13,7 @@ public:
     // Methods
 public:
 
-    static double categoricalCrossentropy(const Matrix& predictions, const Matrix& labels);
+    static float categoricalCrossentropy(const Matrix& predictions, const Matrix& labels);
 
 };
 
