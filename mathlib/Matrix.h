@@ -35,7 +35,7 @@ public:
 
     void print() const;
 
-    Matrix applyFunc(std::function<float(float)> func) const;
+    void applyFunc(std::function<float(float)> func);
 
     Matrix T() const;
 
@@ -62,6 +62,9 @@ public:
     friend std::ostream& operator<<(std::ostream& stream, const Matrix& m);
 };
 
+float round(float i);
+
 std::ostream& operator<<(std::ostream& stream, const Matrix& m);
+
 
 }

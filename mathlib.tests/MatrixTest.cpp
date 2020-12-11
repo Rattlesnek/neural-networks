@@ -61,9 +61,9 @@ TEST(MatrixTest, ApplyFunctionBasic)
 {
     Matrix m(2,2);
 
-    Matrix mOut = m.applyFunc([](float x) -> float { return x + 3.8f; });
-    EXPECT_EQ(mOut(0,0), 3.8f);
-    EXPECT_EQ(mOut(1,0), 3.8f);
+    m.applyFunc([](float x) -> float { return x + 3.8f; });
+    EXPECT_EQ(m(0,0), 3.8f);
+    EXPECT_EQ(m(1,0), 3.8f);
 }
 
 TEST(MatrixTest, BasicSumTest)
@@ -74,3 +74,4 @@ TEST(MatrixTest, BasicSumTest)
     EXPECT_EQ(m.sum(), 4.f);
     EXPECT_EQ(m1.sum(), 3.f);
 }
+
