@@ -74,3 +74,4 @@ TEST(MatrixTest, BasicSumTest)
     EXPECT_EQ(m.sum(), 4.f);
     EXPECT_EQ(m1.sum(), 3.f);
 }
+

@@ -62,6 +62,9 @@ public:
     friend std::ostream& operator<<(std::ostream& stream, const Matrix& m);
 };
 
+float round(float i);
+
 std::ostream& operator<<(std::ostream& stream, const Matrix& m);
+
 
 }
