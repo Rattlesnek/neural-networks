@@ -6,10 +6,10 @@ using namespace mathlib;
 TEST(MatrixTest, MatrixAssignment)
 {
     Matrix mat(5, 5);
-    mat(3, 4) = 10.0;
+    mat(3, 4) = 10.f;
 
-    EXPECT_EQ(mat(3, 4), 10.0);
-    EXPECT_EQ(mat(4, 3), 0.0);
+    EXPECT_EQ(mat(3, 4), 10.f);
+    EXPECT_EQ(mat(4, 3), 0.f);
 }
 
 TEST(MatrixTest, MatrixAddition)
@@ -18,10 +18,10 @@ TEST(MatrixTest, MatrixAddition)
     Matrix mat2(2, 2, {9, 8, 7, 6});
 
     auto mat = mat1 + mat2;
-    EXPECT_EQ(mat(0, 0), 10);
-    EXPECT_EQ(mat(0, 1), 10);
-    EXPECT_EQ(mat(1, 0), 10);
-    EXPECT_EQ(mat(1, 1), 10);
+    EXPECT_EQ(mat(0, 0), 10.f);
+    EXPECT_EQ(mat(0, 1), 10.f);
+    EXPECT_EQ(mat(1, 0), 10.f);
+    EXPECT_EQ(mat(1, 1), 10.f);
 }
 
 TEST(MatrixTest, MatrixAdditionException)
@@ -38,32 +38,41 @@ TEST(MatrixTest, MatrixMultiplication)
     Matrix mat2(3,2,{7,8,9,10,11,12});
 
     Matrix outcome = mat1 * mat2;
-    EXPECT_EQ(outcome(0,0), 58);
-    EXPECT_EQ(outcome(0,1), 64);
-    EXPECT_EQ(outcome(1,0), 139);
-    EXPECT_EQ(outcome(1,1), 154);
+    EXPECT_EQ(outcome(0,0), 58.f);
+    EXPECT_EQ(outcome(0,1), 64.f);
+    EXPECT_EQ(outcome(1,0), 139.f);
+    EXPECT_EQ(outcome(1,1), 154.f);
 }
 
 TEST(MatrixTest, TransposeBasic)
 {
-    Matrix mat(3,3);
+    Matrix mat(3, 3);
     for (int i = 0; i < 9; i++){
         mat[i] = i;
     }
 
     Matrix Tmat = mat.T();
-    EXPECT_EQ(Tmat(1,1),4);
-    EXPECT_EQ(Tmat(0,1),3);
-    EXPECT_EQ(Tmat(2,1),5);
+    EXPECT_EQ(Tmat(1,1), 4.f);
+    EXPECT_EQ(Tmat(0,1), 3.f);
+    EXPECT_EQ(Tmat(2,1), 5.f);
 }
 
 TEST(MatrixTest, ApplyFunctionBasic)
 {
     Matrix m(2,2);
 
-    Matrix mOut = m.applyFunc([](double x) -> double { return x + 3.8; });
-    EXPECT_EQ(mOut(0,0), 3.8);
-    EXPECT_EQ(mOut(1,0), 3.8);
+    Matrix mOut = m.applyFunc([](float x) -> float { return x + 3.8f; });
+    EXPECT_EQ(mOut(0,0), 3.8f);
+    EXPECT_EQ(mOut(1,0), 3.8f);
+}
+
+TEST(MatrixTest, BasicSumTest)
+{
+    Matrix m(2, 2, {1.0,1.0,1.0,1.0});
+    Matrix m1(2, 2, {0.9,1.1,0.54,0.46});
+    
+    EXPECT_EQ(m.sum(), 4.f);
+    EXPECT_EQ(m1.sum(), 3.f);
 }
 
 TEST(MatrixTest, BasicSumTest)

@@ -3,7 +3,6 @@
 #include <vector>
 #include <functional>
 #include <iostream>
-#include <memory>
 
 namespace mathlib
 {
@@ -14,7 +13,7 @@ class Matrix
 private:    
     int rows;
     int cols;
-    std::vector<double> mat;
+    std::vector<float> mat;
     
     // Constructors / destructor
 public:
@@ -22,7 +21,7 @@ public:
 
     Matrix(int rows, int cols);
 
-    Matrix(int rows, int cols, std::vector<double> vec);
+    Matrix(int rows, int cols, std::vector<float> vec);
 
     // Methods 
 public:
@@ -30,26 +29,31 @@ public:
 
     const int getCols() const noexcept;
 
+    const std::vector<float>& getVector() const noexcept;
+
     void setDimensions(int rows, int cols);
 
     void print() const;
 
-    Matrix applyFunc(std::function<double(double)> func) const;
+    Matrix applyFunc(std::function<float(float)> func) const;
 
     Matrix T() const;
 
-    double sum() const;
+    float sum() const;
 
+    std::vector<float>::iterator begin();
+
+    std::vector<float>::iterator end();
 
     // Operators
 public:
-    double& operator()(int row, int col);
+    float& operator()(int row, int col);
 
-    double operator()(int row, int col) const;
+    float operator()(int row, int col) const;
 
-    double& operator[](int i); // added this so we can more easily generate matrices for testing
+    float& operator[](int i); // added this so we can more easily generate matrices for testing
     
-    double operator[](int i) const;
+    float operator[](int i) const;
 
     Matrix operator+(const Matrix& m2) const;
 

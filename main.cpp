@@ -1,7 +1,9 @@
 #include <iostream>
 #include "MathLib.hpp"
-#include "DataLoad.hpp"
+#include <memory>
+
 using namespace mathlib;
+using namespace mathlib::activation;
 
 int main()
 {   
