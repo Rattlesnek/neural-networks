@@ -69,7 +69,5 @@ std::vector<PicData> DataLoader::loadAllData(int rows, int cols)
             break;
         }
     }
-    std::cout << pics[0].getMat() << '\n';
-    std::cout << pics[0].getLabel() << '\n';
     return pics;
 }
