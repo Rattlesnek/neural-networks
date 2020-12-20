@@ -1,5 +1,6 @@
 #include "Dense.h"
 #include "LayerException.h"
+#include <random>
 
 using namespace nnlib;
 using namespace mathlib;
@@ -30,6 +31,8 @@ Dense::Dense(std::string name,
     // each row of matrix is a vector of weights of a single neuron
     // this matrix of weigths will be multiplied with the input vector from the left like this: weights * input -- hence the size of the matrix
     weights.setDimensions(outputHeight, previousLayer->getOutputHeight());
+    initializeWeights();
+    totalWeightUpdate.setDimensions(outputHeight, previousLayer->getOutputHeight());
 
     biases.setDimensions(outputHeight, 1);
 
@@ -47,7 +50,7 @@ Matrix Dense::forward(const Matrix& input)
     // dummy implementation
     if (! input.isColumnVector())
     {
-        throw LayerException("Layer '" + name + "' - Forward: input of wrong dimensions!");
+        throw LayerException(name + " - Forward: input of wrong dimensions!");
     }
 
     // 1. Step
@@ -61,7 +64,7 @@ Matrix Dense::backward(const Matrix& errorNeuronGradient)
     // dummy implementation
     if (! errorNeuronGradient.isColumnVector())
     {
-        throw LayerException("Layer '" + name + "' - Backward: errorNeuronGradient of wrong dimensions!");
+        throw LayerException(name + " - Backward: errorNeuronGradient of wrong dimensions!");
     }
 
     // 2. Step
@@ -73,10 +76,18 @@ Matrix Dense::backward(const Matrix& errorNeuronGradient)
     // 3. Step
     // calculate single weight update
     Matrix otherColumnVector = Matrix::arrayMult(errorNeuronGradient, activation->callDerivative(neuronState)); 
-    Matrix singleWeightUpdate = otherColumnVector * previousLayer->getNeuronOutput();
+    Matrix singleWeightUpdate = otherColumnVector * previousLayer->getNeuronOutput().T();
 
     // 4. Step
     totalWeightUpdate = totalWeightUpdate + singleWeightUpdate;
 
     return nextErrorNeuronGradient;
+}
+
+void Dense::initializeWeights()
+{
+    // TODO
+    std::default_random_engine generator;
+    std::normal_distribution<float> distribution(0.f, 1.f);
+    weights.applyFunc([&](float x) -> float { return distribution(generator); });
 }

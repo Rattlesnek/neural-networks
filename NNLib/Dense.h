@@ -43,6 +43,10 @@ public:
 
     virtual mathlib::Matrix backward(const mathlib::Matrix& errorNeuronGradient) override;  
 
+    // Methods
+private:
+    void initializeWeights();
+
 };
 
 }
