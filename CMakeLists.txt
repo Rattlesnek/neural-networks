@@ -10,7 +10,7 @@ add_subdirectory(dataload)
 # Add Tests
 add_subdirectory(mathlib.tests)
 add_subdirectory(NNLib.tests)
-
+add_subdirectory(dataload.tests)
 
 # Add Main
 add_executable(main main.cpp)
