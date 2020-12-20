@@ -9,6 +9,7 @@ add_subdirectory(dataload)
 
 # Add Tests
 add_subdirectory(mathlib.tests)
+add_subdirectory(NNLib.tests)
 
 
 # Add Main
