@@ -10,6 +10,14 @@ TEST(MatrixTest, MatrixAssignment)
 
     EXPECT_EQ(mat(3, 4), 10.f);
     EXPECT_EQ(mat(4, 3), 0.f);
+
+    Matrix mat2 = mat;
+    mat2(3, 2) = 5.f;
+
+    EXPECT_EQ(mat2(3, 4), 10.f);
+    EXPECT_EQ(mat2(4, 3), 0.f);
+    EXPECT_EQ(mat2(3, 2), 5.f);
+    EXPECT_EQ(mat(3, 2), 0.f);
 }
 
 TEST(MatrixTest, MatrixAddition)
@@ -17,17 +25,15 @@ TEST(MatrixTest, MatrixAddition)
     Matrix mat1(2, 2, {1, 2, 3, 4});
     Matrix mat2(2, 2, {9, 8, 7, 6});
 
-    auto mat = mat1 + mat2;
-    EXPECT_EQ(mat(0, 0), 10.f);
-    EXPECT_EQ(mat(0, 1), 10.f);
-    EXPECT_EQ(mat(1, 0), 10.f);
-    EXPECT_EQ(mat(1, 1), 10.f);
-}
+    auto out = mat1 + mat2;
+    EXPECT_EQ(out(0, 0), 10.f);
+    EXPECT_EQ(out(0, 1), 10.f);
+    EXPECT_EQ(out(1, 0), 10.f);
+    EXPECT_EQ(out(1, 1), 10.f);
 
-TEST(MatrixTest, MatrixAdditionException)
-{
-    Matrix mat1(2,3);
-    Matrix mat2(3,2);
+    mat1.setDimensions(2, 3);
+    EXPECT_EQ(mat1(0, 0), 0.f);
+    EXPECT_EQ(mat1(1, 2), 0.f);
 
     EXPECT_THROW(mat1 + mat2, MatrixException);
 }
@@ -42,6 +48,11 @@ TEST(MatrixTest, MatrixMultiplication)
     EXPECT_EQ(outcome(0,1), 64.f);
     EXPECT_EQ(outcome(1,0), 139.f);
     EXPECT_EQ(outcome(1,1), 154.f);
+
+    mat1.setDimensions(2, 2);
+    EXPECT_EQ(mat1(0,0), 0.f);
+
+    EXPECT_THROW(mat1 * mat2, MatrixException);
 }
 
 TEST(MatrixTest, TransposeBasic)
@@ -50,11 +61,24 @@ TEST(MatrixTest, TransposeBasic)
     for (int i = 0; i < 9; i++){
         mat[i] = i;
     }
+    EXPECT_FALSE(mat.isRowVector());
+    EXPECT_FALSE(mat.isColumnVector());
 
     Matrix Tmat = mat.T();
     EXPECT_EQ(Tmat(1,1), 4.f);
     EXPECT_EQ(Tmat(0,1), 3.f);
     EXPECT_EQ(Tmat(2,1), 5.f);
+
+    Matrix mat2(1, 3, {1, 2, 3});
+    EXPECT_TRUE(mat2.isRowVector());
+    EXPECT_FALSE(mat2.isColumnVector());
+
+    Matrix Tmat2 = mat2.T();
+    EXPECT_FALSE(Tmat2.isRowVector());
+    EXPECT_TRUE(Tmat2.isColumnVector());
+    EXPECT_EQ(Tmat2(0, 0), 1.f);
+    EXPECT_EQ(Tmat2(1, 0), 2.f);
+    EXPECT_EQ(Tmat2(2, 0), 3.f);
 }
 
 TEST(MatrixTest, ApplyFunctionBasic)
@@ -73,5 +97,23 @@ TEST(MatrixTest, BasicSumTest)
     
     EXPECT_EQ(m.sum(), 4.f);
     EXPECT_EQ(m1.sum(), 3.f);
+}
+
+TEST(MatrixTest, ArrayMultTest)
+{
+    Matrix mat1(2, 2, {1, 2, 3, 4});
+    Matrix mat2(2, 2, {9, 8, 7, 6});
+
+    auto out = Matrix::arrayMult(mat1, mat2);
+    EXPECT_EQ(out(0, 0), 9.f);
+    EXPECT_EQ(out(0, 1), 16.f);
+    EXPECT_EQ(out(1, 0), 21.f);
+    EXPECT_EQ(out(1, 1), 24.f);
+
+    mat1.setDimensions(2, 3);
+    EXPECT_EQ(mat1(0, 0), 0.f);
+    EXPECT_EQ(mat1(1, 2), 0.f);
+
+    EXPECT_THROW(Matrix::arrayMult(mat1, mat2), MatrixException);
 }
 

@@ -31,6 +31,10 @@ public:
 
     const std::vector<float>& getVector() const noexcept;
 
+    bool isColumnVector() const noexcept;
+
+    bool isRowVector() const noexcept;
+
     void setDimensions(int rows, int cols);
 
     void print() const;
@@ -60,6 +64,11 @@ public:
     Matrix operator*(const Matrix& m2) const;
 
     friend std::ostream& operator<<(std::ostream& stream, const Matrix& m);
+
+    // Static methods
+public:
+    static Matrix arrayMult(const Matrix& m1, const Matrix& m2);
+
 };
 
 float round(float i);

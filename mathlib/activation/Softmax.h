@@ -21,7 +21,7 @@ public:
     virtual Matrix callDerivative(Matrix mat) override
     {
         // TODO not implemented
-        return Matrix();
+        return Matrix(1, 1);
     }
 };
 

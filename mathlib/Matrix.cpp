@@ -8,12 +8,20 @@ using namespace mathlib;
 
 Matrix::Matrix(int rows, int cols) :
     rows(rows), cols(cols), mat(rows * cols)
-{
+{  
+    if (rows <= 0 || cols <= 0)
+    {
+        throw MatrixException("Could not construct Matrix. Invalid rows/cols number!");
+    }
 }
 
 Matrix::Matrix(int rows, int cols, std::vector<float> vec) :
     rows(rows), cols(cols), mat(std::move(vec))
 {
+    if (rows <= 0 || cols <= 0)
+    {
+        throw MatrixException("Could not construct Matrix. Invalid rows/cols number!");
+    }    
     if (mat.size() != rows * cols)
     {
         throw MatrixException("Could not construct Matrix. Incorect vector size!"); 
@@ -35,11 +43,25 @@ const std::vector<float>& Matrix::getVector() const noexcept
     return mat;
 }
 
+bool Matrix::isColumnVector() const noexcept
+{
+    return cols == 1;
+}
+
+bool Matrix::isRowVector() const noexcept
+{
+    return rows == 1;
+}
+
 void Matrix::setDimensions(int rows, int cols)
 {
+    if (rows <= 0 || cols <= 0)
+    {
+        throw MatrixException("Could not set dimensions. Invalid rows/cols number!");
+    } 
+
     this->rows = rows;
     this->cols = cols;
-
     mat.resize(rows * cols);
     std::fill(mat.begin(), mat.end(), 0.f);
 }
@@ -64,8 +86,12 @@ void Matrix::applyFunc(std::function<float(float)> func)
 Matrix Matrix::T() const
 {
     const Matrix& m = *this;
-    Matrix tm = Matrix(m.cols, m.rows);
+    if (m.isRowVector() || m.isColumnVector())
+    {
+        return Matrix(m.cols, m.rows, m.mat);
+    }
 
+    Matrix tm = Matrix(m.cols, m.rows);
     for (int i = 0; i < m.rows; i++)
     {
         for (int j = 0; j < m.cols; j++)
@@ -152,6 +178,24 @@ Matrix Matrix::operator*(const Matrix& m2) const
     return m;
 }
 
+Matrix Matrix::arrayMult(const Matrix& m1, const Matrix& m2)
+{
+    if (m1.cols != m2.cols || m1.rows != m2.rows)
+    {
+        throw MatrixException("Wrong dimensions, can't perform array multiplication!");
+    }
+    
+    Matrix m(m1.rows, m1.cols);
+    for (int r = 0; r < m2.rows; r++)
+    {
+        for (int c = 0; c < m2.cols; c++)
+        {
+            m(r,c) = m1(r,c) * m2(r,c);
+        }
+    }
+    return m;
+}
+
 std::ostream& mathlib::operator<<(std::ostream& stream, const Matrix& m)
 {
     stream << "[" << std::endl;
@@ -165,3 +209,4 @@ std::ostream& mathlib::operator<<(std::ostream& stream, const Matrix& m)
     stream << "]" << std::endl;
     return stream;
 }
+
