@@ -2,26 +2,26 @@
 #include <memory>
 #include <string>
 
-#include "ILayer.h"
+#include "BaseLayer.h"
 #include "MathLib.hpp"
 
 namespace nnlib
 {
 
-class Dense : ILayer
+class Dense : public BaseLayer
 {
     // Fields
 private:
-    std::string name;
-    // numOfNeurons = outputHeight * outputWidth
-    int outputHeight; 
-    int outputWidth = 1; // output is by default a column vector (mathlib::Matrix)
-
     std::shared_ptr<ILayer> previousLayer;
     // std::shared_ptr<ILayer> nextLayer;
 
-    mathlib::Matrix weights;
-    mathlib::Matrix biases;
+    mathlib::Matrix weights; // matrix
+    mathlib::Matrix biases; // column vector
+
+    mathlib::Matrix neuronState; // column vector
+    mathlib::Matrix neuronOutput; // column vector
+
+    mathlib::Matrix totalWeightUpdate; // matrix
 
     std::shared_ptr<mathlib::activation::IActivation> activation;
 
@@ -29,22 +29,19 @@ private:
     // Constructors / destructor
 public:
     Dense(std::string name,
-        int numOfNeurons,
+        LayerType type,
+        int numOfNeurons, // numOfNeurons = outputHeight * outputWidth
         std::shared_ptr<ILayer> previousLayer, 
         std::shared_ptr<mathlib::activation::IActivation> activation);
 
     // Methods
 public:
 
-    virtual const std::string& getName() const override;
+    virtual const mathlib::Matrix& getNeuronOutput() const override;
 
-    virtual int getOutputHeight() const override;
+    virtual mathlib::Matrix forward(const mathlib::Matrix& input) override;
 
-    virtual int getOutputWidth() const override;
-
-    virtual mathlib::Matrix forward(const mathlib::Matrix& input) const override;
-
-
+    virtual mathlib::Matrix backward(const mathlib::Matrix& errorNeuronGradient) override;  
 
 };
 

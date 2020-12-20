@@ -6,21 +6,24 @@ using namespace mathlib;
 using namespace mathlib::activation;
 
 Dense::Dense(std::string name,
+    LayerType type,
     int numOfNeurons, 
     std::shared_ptr<ILayer> previousLayer, 
     std::shared_ptr<IActivation> activation) 
     :
-    name(std::move(name)),
-    outputHeight(numOfNeurons),
+    BaseLayer(std::move(name), type, numOfNeurons, 1), // output is by default a column vector
     previousLayer(previousLayer),
     activation(activation)
 {
     // Dummy constructor
     // TODO initialization of weights
-
+    if (previousLayer == nullptr || activation == nullptr)
+    {
+        throw LayerException(this->name + " - Constructor - nullptr passed.");
+    }
     if (previousLayer->getOutputWidth() != 1)
     {
-        throw LayerException("Layer '" + name + "' could not be connected to previous layer. Size mismatch.");
+        throw LayerException(this->name + " - Constructor - could not be connected to previous layer. Size mismatch.");
     }
 
     // this is the matrix of weights for all neurons in the layer
@@ -29,24 +32,51 @@ Dense::Dense(std::string name,
     weights.setDimensions(outputHeight, previousLayer->getOutputHeight());
 
     biases.setDimensions(outputHeight, 1);
+
+    neuronState.setDimensions(outputHeight, 1);
+    neuronOutput.setDimensions(outputHeight, 1);
 }
 
-const std::string& Dense::getName() const
+const Matrix& Dense::getNeuronOutput() const
 {
-    return name;
+    return neuronOutput;
 }
 
-int Dense::getOutputHeight() const
+Matrix Dense::forward(const Matrix& input)
 {
-    return outputHeight;
+    // dummy implementation
+    if (! input.isColumnVector())
+    {
+        throw LayerException("Layer '" + name + "' - Forward: input of wrong dimensions!");
+    }
+
+    // 1. Step
+    neuronState = weights * input + biases;
+    neuronOutput = activation->call(neuronState);
+    return neuronOutput;
 }
 
-int Dense::getOutputWidth() const
+Matrix Dense::backward(const Matrix& errorNeuronGradient)
 {
-    return outputWidth;
-}
+    // dummy implementation
+    if (! errorNeuronGradient.isColumnVector())
+    {
+        throw LayerException("Layer '" + name + "' - Backward: errorNeuronGradient of wrong dimensions!");
+    }
 
-Matrix Dense::forward(const Matrix& input) const
-{
-    return activation->call(weights * input + biases);
+    // 2. Step
+    // calculate nextErrorNeuronGradient
+    Matrix columnVector = Matrix::arrayMult(errorNeuronGradient, activation->callDerivative(neuronState));
+    Matrix rowVector = columnVector.T();
+    Matrix nextErrorNeuronGradient = rowVector * weights;
+
+    // 3. Step
+    // calculate single weight update
+    Matrix otherColumnVector = Matrix::arrayMult(errorNeuronGradient, activation->callDerivative(neuronState)); 
+    Matrix singleWeightUpdate = otherColumnVector * previousLayer->getNeuronOutput();
+
+    // 4. Step
+    totalWeightUpdate = totalWeightUpdate + singleWeightUpdate;
+
+    return nextErrorNeuronGradient;
 }
