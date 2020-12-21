@@ -18,3 +18,16 @@ float ErrorFunc::categoricalCrossentropy(const Matrix& predictions, const Matrix
     return - std::accumulate(multLabels.begin(), multLabels.end(), 0.f);  
 }
 
+float ErrorFunc::meanSquareError(const Matrix& predictions, const Matrix& labels)
+{
+    float result = 0.f;
+    for (int i = 0; i < labels.getRows(); i++)
+    {   
+        for (int j = 0; j < labels.getCols(); j++)
+        {
+            result += std::pow(predictions(i, j) - labels(i, j), 2.f);
+        }
+    }
+    return 0.5f * result;
+}
+

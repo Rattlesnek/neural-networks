@@ -83,10 +83,11 @@ Matrix Dense::backward(const Matrix& errorNeuronGradient)
     totalBiasesUpdate = totalBiasesUpdate + singleBiasUpdate;
 
     // TEMPORARY -- update now
-    const float alpha = 0.1f;
-    totalWeightUpdate.applyFunc([&](float x) -> float { return alpha * x; });
+    const float alpha = 0.5f;
+    auto multiplyByAlpha = [&](float x) -> float { return alpha * x; };
+    totalWeightUpdate.applyFunc(multiplyByAlpha);
     weights = weights - totalWeightUpdate;
-    totalBiasesUpdate.applyFunc([&](float x) -> float { return alpha * x; });
+    totalBiasesUpdate.applyFunc(multiplyByAlpha);
     biases = biases - totalBiasesUpdate;
     // TEMPORARY
 

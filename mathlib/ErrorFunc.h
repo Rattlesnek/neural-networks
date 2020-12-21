@@ -15,6 +15,8 @@ public:
 
     static float categoricalCrossentropy(const Matrix& predictions, const Matrix& labels);
 
+    static float meanSquareError(const Matrix& predictions, const Matrix& labels);
+
 };
 
 }
