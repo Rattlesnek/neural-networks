@@ -156,6 +156,25 @@ Matrix Matrix::operator+(const Matrix& m2) const
     return m;
 }
 
+Matrix Matrix::operator-(const Matrix& m2) const
+{
+    const Matrix& m1 = *this;
+    if (m1.cols != m2.cols || m1.rows != m2.rows)
+    {
+        throw MatrixException("Wrong dimensions, can't subtract!");
+    }
+    
+    Matrix m(m1.rows, m1.cols);
+    for (int r = 0; r < m2.rows; r++)
+    {
+        for (int c = 0; c < m2.cols; c++)
+        {
+            m(r,c) = m1(r,c) - m2(r,c);
+        }
+    }
+    return m;
+}
+
 Matrix Matrix::operator*(const Matrix& m2) const
 {
     const Matrix& m1 = *this;

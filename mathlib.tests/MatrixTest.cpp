@@ -38,6 +38,24 @@ TEST(MatrixTest, MatrixAddition)
     EXPECT_THROW(mat1 + mat2, MatrixException);
 }
 
+TEST(MatrixTest, MatrixSubtraction)
+{
+    Matrix mat1(2, 2, {10, 9, 8, 7});
+    Matrix mat2(2, 2, {5, 4, 3, 2});
+
+    auto out = mat1 - mat2;
+    EXPECT_EQ(out(0, 0), 5.f);
+    EXPECT_EQ(out(0, 1), 5.f);
+    EXPECT_EQ(out(1, 0), 5.f);
+    EXPECT_EQ(out(1, 1), 5.f);
+
+    mat1.setDimensions(2, 3);
+    EXPECT_EQ(mat1(0, 0), 0.f);
+    EXPECT_EQ(mat1(1, 2), 0.f);
+
+    EXPECT_THROW(mat1 - mat2, MatrixException);
+}
+
 TEST(MatrixTest, MatrixMultiplication)
 {
     Matrix mat1(2,3,{1,2,3,4,5,6});
