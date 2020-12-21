@@ -14,8 +14,7 @@ protected:
     std::string name;
     LayerType type;
 
-    int outputHeight; 
-    int outputWidth;
+    mathlib::Matrix output;
 
     // Constructor / destructor
 public:
@@ -33,6 +32,8 @@ public:
     virtual int getOutputHeight() const noexcept override;
 
     virtual int getOutputWidth() const noexcept override;
+
+    virtual const mathlib::Matrix& getLastOutput() const noexcept override;
 
 };
 

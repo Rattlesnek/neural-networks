@@ -3,6 +3,7 @@
 #include "LayerException.h"
 
 using namespace nnlib;
+using namespace mathlib;
 
 BaseLayer::BaseLayer(std::string name, 
     LayerType type,
@@ -11,13 +12,8 @@ BaseLayer::BaseLayer(std::string name,
     :
     name(std::move(name)),
     type(type),
-    outputHeight(outputHeight),
-    outputWidth(outputWidth)
+    output(outputHeight, outputWidth)
 {
-    if (outputHeight <= 0 || outputWidth <= 0)
-    {
-        throw LayerException(this->name + " - BaseLayer Constructor - wrong output size.");
-    }
 }
 
 const std::string& BaseLayer::getName() const noexcept
@@ -32,10 +28,15 @@ const LayerType& BaseLayer::getType() const noexcept
 
 int BaseLayer::getOutputHeight() const noexcept
 {
-    return outputHeight;
+    return output.getRows();
 }
 
 int BaseLayer::getOutputWidth() const noexcept
 {
-    return outputWidth;
+    return output.getCols();
+}
+
+const Matrix& BaseLayer::getLastOutput() const noexcept
+{
+    return output;
 }

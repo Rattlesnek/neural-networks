@@ -18,6 +18,10 @@ Dense::Dense(std::string name,
 {
     // Dummy constructor
     // TODO initialization of weights
+    if (type != LayerType::HiddenLayer && type != LayerType::OutputLayer)
+    {
+        throw LayerException(this->name + " - Constructor - incorrect layer type.");
+    }
     if (previousLayer == nullptr || activation == nullptr)
     {
         throw LayerException(this->name + " - Constructor - nullptr passed.");
@@ -30,19 +34,15 @@ Dense::Dense(std::string name,
     // this is the matrix of weights for all neurons in the layer
     // each row of matrix is a vector of weights of a single neuron
     // this matrix of weigths will be multiplied with the input vector from the left like this: weights * input -- hence the size of the matrix
-    weights.setDimensions(outputHeight, previousLayer->getOutputHeight());
-    initializeWeights();
-    totalWeightUpdate.setDimensions(outputHeight, previousLayer->getOutputHeight());
+    weights.setDimensions(this->getOutputHeight(), previousLayer->getOutputHeight());
+    totalWeightUpdate.setDimensions(this->getOutputHeight(), previousLayer->getOutputHeight());
 
-    biases.setDimensions(outputHeight, 1);
+    biases.setDimensions(this->getOutputHeight(), 1);
+    totalBiasesUpdate.setDimensions(this->getOutputHeight(), 1);
 
-    neuronState.setDimensions(outputHeight, 1);
-    neuronOutput.setDimensions(outputHeight, 1);
-}
+    initializeWeightsAndBiases();
 
-const Matrix& Dense::getNeuronOutput() const
-{
-    return neuronOutput;
+    neuronState.setDimensions(this->getOutputHeight(), 1);
 }
 
 Matrix Dense::forward(const Matrix& input)
@@ -55,8 +55,8 @@ Matrix Dense::forward(const Matrix& input)
 
     // 1. Step
     neuronState = weights * input + biases;
-    neuronOutput = activation->call(neuronState);
-    return neuronOutput;
+    output = activation->call(neuronState);
+    return output;
 }
 
 Matrix Dense::backward(const Matrix& errorNeuronGradient)
@@ -74,20 +74,32 @@ Matrix Dense::backward(const Matrix& errorNeuronGradient)
     Matrix nextErrorNeuronGradient = rowVector * weights;
 
     // 3. Step
-    // calculate single weight update
-    Matrix otherColumnVector = Matrix::arrayMult(errorNeuronGradient, activation->callDerivative(neuronState)); 
-    Matrix singleWeightUpdate = otherColumnVector * previousLayer->getNeuronOutput().T();
+    // calculate single weight and bias update
+    Matrix singleWeightUpdate = columnVector * previousLayer->getLastOutput().T();
+    Matrix singleBiasUpdate = columnVector; // ???
 
     // 4. Step
     totalWeightUpdate = totalWeightUpdate + singleWeightUpdate;
+    totalBiasesUpdate = totalBiasesUpdate + singleBiasUpdate;
 
-    return nextErrorNeuronGradient;
+    // TEMPORARY -- update now
+    const float alpha = 0.1f;
+    totalWeightUpdate.applyFunc([&](float x) -> float { return alpha * x; });
+    weights = weights - totalWeightUpdate;
+    totalBiasesUpdate.applyFunc([&](float x) -> float { return alpha * x; });
+    biases = biases - totalBiasesUpdate;
+    // TEMPORARY
+
+    return nextErrorNeuronGradient.T();
 }
 
-void Dense::initializeWeights()
+void Dense::initializeWeightsAndBiases()
 {
     // TODO
     std::default_random_engine generator;
     std::normal_distribution<float> distribution(0.f, 1.f);
-    weights.applyFunc([&](float x) -> float { return distribution(generator); });
+
+    auto randomInitialization = [&](float x) -> float { return distribution(generator); };
+    weights.applyFunc(randomInitialization);
+    biases.applyFunc(randomInitialization);
 }

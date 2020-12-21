@@ -1,5 +1,4 @@
 #pragma once
-#include <memory>
 #include <string>
 
 #include "BaseLayer.h"
@@ -10,10 +9,6 @@ namespace nnlib
 
 class Input : public BaseLayer
 {
-    // Fields
-private:
-    mathlib::Matrix neuronOutput;
-
     // Constructors / destructor
 public:
     Input(std::string name,
@@ -22,8 +17,6 @@ public:
 
     // Methods
 public: 
-    virtual const mathlib::Matrix& getNeuronOutput() const noexcept override;
-
     virtual mathlib::Matrix forward(const mathlib::Matrix& input) override;
 
     virtual mathlib::Matrix backward(const mathlib::Matrix& errorNeuronGradient) override;

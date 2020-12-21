@@ -13,15 +13,14 @@ class Dense : public BaseLayer
     // Fields
 private:
     std::shared_ptr<ILayer> previousLayer;
-    // std::shared_ptr<ILayer> nextLayer;
 
     mathlib::Matrix weights; // matrix
     mathlib::Matrix biases; // column vector
 
     mathlib::Matrix neuronState; // column vector
-    mathlib::Matrix neuronOutput; // column vector
 
     mathlib::Matrix totalWeightUpdate; // matrix
+    mathlib::Matrix totalBiasesUpdate; // column vector
 
     std::shared_ptr<mathlib::activation::IActivation> activation;
 
@@ -36,16 +35,13 @@ public:
 
     // Methods
 public:
-
-    virtual const mathlib::Matrix& getNeuronOutput() const override;
-
     virtual mathlib::Matrix forward(const mathlib::Matrix& input) override;
 
     virtual mathlib::Matrix backward(const mathlib::Matrix& errorNeuronGradient) override;  
 
     // Methods
 private:
-    void initializeWeights();
+    void initializeWeightsAndBiases();
 
 };
 

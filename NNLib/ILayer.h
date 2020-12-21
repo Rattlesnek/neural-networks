@@ -24,13 +24,11 @@ public:
 
     virtual int getOutputWidth() const = 0;
 
-    virtual const mathlib::Matrix& getNeuronOutput() const = 0;
+    virtual const mathlib::Matrix& getLastOutput() const = 0;
 
     virtual mathlib::Matrix forward(const mathlib::Matrix& input) = 0;
     
     virtual mathlib::Matrix backward(const mathlib::Matrix& errorNeuronGradient) = 0;
-
-    
 
 };
 

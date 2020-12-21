@@ -10,21 +10,15 @@ Input::Input(std::string name,
     :
     BaseLayer(std::move(name), LayerType::InputLayer, IOheight, IOwidth)
 {
-    neuronOutput.setDimensions(IOheight, IOwidth);
-}
-
-const Matrix& Input::getNeuronOutput() const noexcept
-{
-    return neuronOutput;
 }
 
 Matrix Input::forward(const Matrix& input)
 {
-    return input;
+    output = input;
+    return output;
 }
 
 Matrix Input::backward(const Matrix& errorNeuronGradient)
 {
-    // TODO
     return errorNeuronGradient;
 }
