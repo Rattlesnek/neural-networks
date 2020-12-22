@@ -197,6 +197,7 @@ Matrix Matrix::operator*(const Matrix& m2) const
     return m;
 }
 
+
 Matrix Matrix::arrayMult(const Matrix& m1, const Matrix& m2)
 {
     if (m1.cols != m2.cols || m1.rows != m2.rows)
@@ -227,5 +228,25 @@ std::ostream& mathlib::operator<<(std::ostream& stream, const Matrix& m)
     }
     stream << "]" << std::endl;
     return stream;
+}
+
+bool operator ==(const Matrix& m1,const Matrix& m2)
+{
+    
+    if (m1.getRows() != m2.getRows() || m1.getCols() != m2.getCols())
+    {
+        return false;
+    }
+    for (int r = 0; r < m1.getRows(); r++)
+    {
+        for (int c = 0; c < m1.getCols(); c++)
+        {
+            if (m1(r,c) != m2(r,c))
+            {
+                return false;
+            }
+        }
+    }
+    return true;
 }
 

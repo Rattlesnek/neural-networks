@@ -17,66 +17,71 @@ float ErrorFunc::categoricalCrossentropy(const Matrix& predictions, const Matrix
     }
     return - std::accumulate(multLabels.begin(), multLabels.end(), 0.f);  
 }
-
 float ErrorFunc::meanSquareError(const Matrix& predictions, const Matrix& labels)
 {
-    float result = 0.f;
-    for (int i = 0; i < labels.getRows(); i++)
-    {   
-        for (int j = 0; j < labels.getCols(); j++)
-        {
-            result += std::pow(predictions(i, j) - labels(i, j), 2.f);
-        }
-    }
-    return 0.5f * result;
+    return 0.5;
 }
 
 Matrix ErrorFunc::softMax(const Matrix& input)
 {
-    float smSum(0.0);
-    for (auto z : input.getVector())
+    Matrix output(input.getRows(), input.getCols());
+    for (int row = 0; row < input.getRows(); row++ )
     {
-        smSum = smSum + std::exp(z);
-    }
-    Matrix output(1, input.getVector().size());
-    for (int i = 0; i < input.getVector().size(); i++ )
-    {
-        output[i] = (std::exp(input[i]))/smSum;
+        float smSum(0.0);
+        for (int col = 0; col < input.getCols(); col++)
+        {
+            smSum = smSum + std::exp(input(row, col));
+        }
+        for (int col = 0; col < input.getCols(); col++)
+        {
+            output(row, col) = (std::exp(input(row, col)))/smSum;
+        }
+        
     }
     return output;
 }
 
-float ErrorFunc::softmaxCrossentropyWithLogits(const Matrix& input, const Matrix& label)
+// jeden column 
+Matrix ErrorFunc::softmaxCrossentropyWithLogits(const Matrix& input, const Matrix& label)
 {
-    float smSum(0.0);
-    for (auto z : input.getVector())
+    Matrix output(input.getRows(), 1);
+    for (int row = 0; row < input.getRows(); row++ )
     {
-        smSum = smSum + std::exp(z);
-    }
-    int i_correct;
-    for (int i = 0; i < input.getVector().size(); i++ )
-    {
-        if (label[i] == 1)
+        float smSum(0.0);
+        for (int col = 0; col < input.getCols(); col++)
         {
-            i_correct = i;
+            smSum = smSum + std::exp(input(row, col));
+        }
+        output(row, 0) = std::log(smSum);
+    }
+    for (int row = 0; row < input.getRows(); row++ )
+    {
+        for (int col = 0; col < input.getCols(); col++)
+        if (label(row, col) == 1)
+        {
+            output(row, 0) -= input(row, col);
         }
     }
-    
-    return -input[i_correct] + std::log(smSum);
+    return output;
 }
 
+//matica normalna size == input.size()
 Matrix ErrorFunc::gradSoftmaxCrossentropyWithLogits(const Matrix& input, const Matrix& label)
 {
     Matrix softmax = softMax(input);
-    int i_correct;
-    for (int i = 0; i < input.getVector().size(); i++ )
+    std::vector<int> cols;
+    std::vector<int> rows;
+    int counter = 0;
+    for (int row = 0; row < input.getRows(); row++ )
     {
-        if (label[i] == 1)
+        for (int col = 0; col < input.getCols(); col++)
+        if (label(row, col) == 1)
         {
-            i_correct = i;
+            softmax(row, col) -= 1;
         }
     }
-    softmax[i_correct] = softmax[i_correct] - 1;
+    
     return softmax;
+
 }
 

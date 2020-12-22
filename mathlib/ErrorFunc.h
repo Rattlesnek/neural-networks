@@ -19,7 +19,7 @@ public:
     
     static Matrix softMax(const Matrix& input);
 
-    static float softmaxCrossentropyWithLogits(const Matrix& input, const Matrix& label);
+    static Matrix softmaxCrossentropyWithLogits(const Matrix& input, const Matrix& label);
     
     static Matrix gradSoftmaxCrossentropyWithLogits(const Matrix& input, const Matrix& label);
 };

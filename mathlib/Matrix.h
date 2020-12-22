@@ -65,8 +65,10 @@ public:
 
     Matrix operator*(const Matrix& m2) const;
 
-    friend std::ostream& operator<<(std::ostream& stream, const Matrix& m);
+    
 
+    friend std::ostream& operator<<(std::ostream& stream, const Matrix& m);
+    friend bool operator==(const Matrix& m1,const Matrix& m2);
     // Static methods
 public:
     static Matrix arrayMult(const Matrix& m1, const Matrix& m2);
@@ -76,6 +78,6 @@ public:
 float round(float i);
 
 std::ostream& operator<<(std::ostream& stream, const Matrix& m);
-
+bool operator==(const Matrix& m1,const Matrix& m2);
 
 }

@@ -71,3 +71,22 @@ std::vector<PicData> DataLoader::loadAllData(int rows, int cols)
     }
     return pics;
 }
+std::vector<PicData> DataLoader::loadNData(int n, int rows, int cols)
+{
+    std::vector<PicData> pics;
+    int count = 0;
+    while (count < n)
+    {
+        try
+        {
+            pics.emplace_back(loadPicture(rows, cols));
+        }
+        catch(const EOFException& e)
+        {
+            std::cout << "end of file!\n";
+            break;
+        }
+        count += 1;
+    }
+    return pics;
+}

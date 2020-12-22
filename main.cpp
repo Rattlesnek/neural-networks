@@ -110,7 +110,7 @@ int main(int argc, char *argv[])
             // error += ErrorFunc::meanSquareError(output, label);
             // auto grad = output - label;
 
-            error += ErrorFunc::softmaxCrossentropyWithLogits(output, label);
+            error += ErrorFunc::softmaxCrossentropyWithLogits(output, label)(0,0);
             auto grad = ErrorFunc::gradSoftmaxCrossentropyWithLogits(output, label);
 
             // Backward
@@ -147,7 +147,7 @@ int main(int argc, char *argv[])
 
         auto probability = ErrorFunc::softMax(output);
         //auto probability = output;
-        error += ErrorFunc::softmaxCrossentropyWithLogits(output, label);
+        error += ErrorFunc::softmaxCrossentropyWithLogits(output, label)(0,0);
 
         std::cout << "---------------\n";
         std::cout << "Input: " << input;
