@@ -16,12 +16,9 @@ private:
 
     std::shared_ptr<mathlib::activation::IActivation> activation;
 
-    mathlib::Matrix output;
-
     // Constructors / destructor
 public:
     Activation(std::string name,
-        LayerType type,
         std::shared_ptr<ILayer> previousLayer, 
         std::shared_ptr<mathlib::activation::IActivation> activation);
 
@@ -30,7 +27,7 @@ public:
 
     virtual mathlib::Matrix forward(const mathlib::Matrix& input) override;
 
-    virtual mathlib::Matrix backward(const mathlib::Matrix& errorNeuronGradient) override;
+    virtual mathlib::Matrix backward(const mathlib::Matrix& gradient) override;
 
 };
 

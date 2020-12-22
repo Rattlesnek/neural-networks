@@ -8,7 +8,7 @@ Input::Input(std::string name,
     int IOheight, 
     int IOwidth)
     :
-    BaseLayer(std::move(name), LayerType::InputLayer, IOheight, IOwidth)
+    BaseLayer(std::move(name), IOheight, IOwidth)
 {
 }
 

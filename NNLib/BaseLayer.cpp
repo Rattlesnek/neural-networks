@@ -6,12 +6,10 @@ using namespace nnlib;
 using namespace mathlib;
 
 BaseLayer::BaseLayer(std::string name, 
-    LayerType type,
     int outputHeight, 
     int outputWidth)
     :
     name(std::move(name)),
-    type(type),
     output(outputHeight, outputWidth)
 {
 }
@@ -19,11 +17,6 @@ BaseLayer::BaseLayer(std::string name,
 const std::string& BaseLayer::getName() const noexcept
 {
     return name;
-}
-
-const LayerType& BaseLayer::getType() const noexcept
-{
-    return type;
 }
 
 int BaseLayer::getOutputHeight() const noexcept
