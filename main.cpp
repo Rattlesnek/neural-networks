@@ -106,12 +106,6 @@ int main(int argc, char *argv[])
                 output = layer->forward(output);
                 //std::cout << output << std::endl;
             }
-            Matrix testIn(1,3,{4, 3, 1});
-            Matrix testL(1,3,{1,0,0});
-            std::cout << "print the GSCEWL matrix here pythonOutput:([-0.29461549  0.25949646  0.03511903]):" << std::endl;
-            std::cout << LogSoftMax::GradSoftmaxCrossEntropyWithLogits(testIn, testL);
-            std::cout << "print the SoftmaxCrossentropyWithLogits here pythonOutput:(0.34901222):" << std::endl;
-            std::cout << LogSoftMax::SoftmaxCrossentropyWithLogits(testIn, testL) << std::endl;
             std::cout << "End forward pass\n";
             std::cout << "------------------------------------------\n";
             
