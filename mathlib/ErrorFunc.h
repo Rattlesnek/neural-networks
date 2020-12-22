@@ -17,11 +17,11 @@ public:
 
     static float meanSquareError(const Matrix& predictions, const Matrix& labels);
     
-    static Matrix SoftMax(const Matrix& input, const Matrix& label);
+    static Matrix softMax(const Matrix& input);
 
-    static float SoftmaxCrossentropyWithLogits(const Matrix& input, const Matrix& label);
+    static float softmaxCrossentropyWithLogits(const Matrix& input, const Matrix& label);
     
-    static Matrix GradSoftmaxCrossEntropyWithLogits(const Matrix& input, const Matrix& label);
+    static Matrix gradSoftmaxCrossentropyWithLogits(const Matrix& input, const Matrix& label);
 };
 
 }

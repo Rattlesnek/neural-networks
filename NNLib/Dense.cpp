@@ -11,7 +11,7 @@ Dense::Dense(std::string name,
     int numOfNeurons, 
     int batchSize)
     :
-    BaseLayer(std::move(name), numOfNeurons, batchSize),
+    BaseLayer(std::move(name), batchSize, numOfNeurons),
     previousLayer(previousLayer)
 {
     // Dummy constructor
@@ -20,7 +20,7 @@ Dense::Dense(std::string name,
     {
         throw LayerException(this->name + " - Constructor - nullptr passed.");
     }
-    if (previousLayer->getOutputWidth() != batchSize)
+    if (previousLayer->getOutputHeight() != batchSize)
     {
         throw LayerException(this->name + " - Constructor - could not be connected to previous layer. Size mismatch.");
     }
@@ -28,50 +28,54 @@ Dense::Dense(std::string name,
     // this is the matrix of weights for all neurons in the layer
     // each row of matrix is a vector of weights of a single neuron
     // this matrix of weigths will be multiplied with the input vector from the left like this: weights * input -- hence the size of the matrix
-    weights.setDimensions(this->getOutputHeight(), previousLayer->getOutputHeight());
-    totalWeightUpdate.setDimensions(this->getOutputHeight(), previousLayer->getOutputHeight());
+    weights.setDimensions(previousLayer->getOutputWidth(), this->getOutputWidth());
+    totalWeightUpdate.setDimensions(previousLayer->getOutputWidth(), this->getOutputWidth());
 
-    biases.setDimensions(this->getOutputHeight(), 1);
-    totalBiasesUpdate.setDimensions(this->getOutputHeight(), 1);
+    biases.setDimensions(1, this->getOutputWidth());
+    totalBiasesUpdate.setDimensions(1, this->getOutputWidth());
 
     initializeWeightsAndBiases();
 }
 
 Matrix Dense::forward(const Matrix& input)
 {
-    // dummy implementation
-    // if (! input.isColumnVector())
-    // {
-    //     throw LayerException(name + " - Forward: input of wrong dimensions!");
-    // }
+    //dummy implementation
+    if (! input.isRowVector())
+    {
+        throw LayerException(name + " - Forward: input of wrong dimensions!");
+    }
 
     // 1. Step
-    output = weights * input + biases;
+    output = input * weights + biases;
     return output;
 }
 
 Matrix Dense::backward(const Matrix& gradient)
 {
-    // dummy implementation
-    // if (! gradient.isColumnVector())
-    // {
-    //     throw LayerException(name + " - Backward: gradient of wrong dimensions!");
-    // }
+    //dummy implementation
+    if (! gradient.isRowVector())
+    {
+        throw LayerException(name + " - Backward: gradient of wrong dimensions!");
+    }
 
     // 2. Step
     // calculate nextGradient
-    Matrix rowVector = gradient.T();
-    Matrix nextGradient = rowVector * weights;
+    Matrix nextGradient = weights * gradient.T();
 
     // 3. Step
     // calculate single weight and bias update
-    Matrix singleWeightUpdate = gradient * previousLayer->getLastOutput().T();
+    Matrix singleWeightUpdate = previousLayer->getLastOutput().T() * gradient;
     Matrix singleBiasUpdate = gradient; // ???
 
     // 4. Step TODO
-    totalWeightUpdate = singleWeightUpdate;
-    totalBiasesUpdate = singleBiasUpdate;
+    totalWeightUpdate = totalWeightUpdate + singleWeightUpdate;
+    totalBiasesUpdate = totalBiasesUpdate + singleBiasUpdate;
 
+    return nextGradient.T();
+}
+
+void Dense::updateWeights()
+{
     // TEMPORARY -- update now
     const float alpha = 0.5f;
     auto multiplyByAlpha = [&](float x) -> float { return alpha * x; };
@@ -79,9 +83,10 @@ Matrix Dense::backward(const Matrix& gradient)
     weights = weights - totalWeightUpdate;
     totalBiasesUpdate.applyFunc(multiplyByAlpha);
     biases = biases - totalBiasesUpdate;
-    // TEMPORARY
 
-    return nextGradient.T();
+    totalWeightUpdate.setDimensions(previousLayer->getOutputWidth(), this->getOutputWidth());
+    totalBiasesUpdate.setDimensions(1, this->getOutputWidth());
+    // TEMPORARY
 }
 
 void Dense::initializeWeightsAndBiases()

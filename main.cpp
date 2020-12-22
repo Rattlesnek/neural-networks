@@ -17,12 +17,12 @@ std::vector<std::shared_ptr<ILayer>> buildNetwork()
     std::cout << "======================================\n";
     std::cout << "Network architecture\n";
 
-    std::shared_ptr<ILayer> input = std::make_shared<Input>("Input_layer", 2, 1);
+    std::shared_ptr<ILayer> input = std::make_shared<Input>("Input_layer", 1, 2);
     std::cout << "Name: " << input->getName() << std::endl;
     std::cout << "Height: " << input->getOutputHeight() << std::endl;
     std::cout << "Width: " << input->getOutputWidth() << std::endl;
 
-    std::shared_ptr<ILayer> dense1 = std::make_shared<Dense>("Dense_layer_hidden", input, 2, 1);
+    std::shared_ptr<ILayer> dense1 = std::make_shared<Dense>("Dense_layer_hidden", input, 6);
     std::cout << "Name: " << dense1->getName() << std::endl;
     std::cout << "Height: " << dense1->getOutputHeight() << std::endl;
     std::cout << "Width: " << dense1->getOutputWidth() << std::endl;
@@ -32,22 +32,22 @@ std::vector<std::shared_ptr<ILayer>> buildNetwork()
     std::cout << "Height: " << activation1->getOutputHeight() << std::endl;
     std::cout << "Width: " << activation1->getOutputWidth() << std::endl;
 
-    std::shared_ptr<ILayer> dense2 = std::make_shared<Dense>("Dense_layer_output", activation1, 1, 1);
+    std::shared_ptr<ILayer> dense2 = std::make_shared<Dense>("Dense_layer_output", activation1, 2);
     std::cout << "Name: " << dense2->getName() << std::endl;
     std::cout << "Height: " << dense2->getOutputHeight() << std::endl;
     std::cout << "Width: " << dense2->getOutputWidth() << std::endl;
 
-    std::shared_ptr<ILayer> activation2 = std::make_shared<Activation>("Activation_output", dense2, std::make_shared<Sigmoid>());
-    std::cout << "Name: " << activation2->getName() << std::endl;
-    std::cout << "Height: " << activation2->getOutputHeight() << std::endl;
-    std::cout << "Width: " << activation2->getOutputWidth() << std::endl;
+    // std::shared_ptr<ILayer> activation2 = std::make_shared<Activation>("Activation_output", dense2, std::make_shared<Sigmoid>());
+    // std::cout << "Name: " << activation2->getName() << std::endl;
+    // std::cout << "Height: " << activation2->getOutputHeight() << std::endl;
+    // std::cout << "Width: " << activation2->getOutputWidth() << std::endl;
 
     std::vector<std::shared_ptr<ILayer>> layers = {
         input,
         dense1,
         activation1, 
         dense2,
-        activation2
+        //activation2
     };
 
     std::cout << "End network architecture\n";
@@ -68,20 +68,11 @@ int main(int argc, char *argv[])
     // Dataset
     // tuple(XOR-input, one-hot-vector)
     std::vector<std::tuple<Matrix, Matrix>> dataXOR = {
-        std::tuple<Matrix, Matrix>(Matrix(2, 1, {0, 0}), Matrix(1, 1, {0})),
-        std::tuple<Matrix, Matrix>(Matrix(2, 1, {0, 1}), Matrix(1, 1, {1})),
-        std::tuple<Matrix, Matrix>(Matrix(2, 1, {1, 0}), Matrix(1, 1, {1})),
-        std::tuple<Matrix, Matrix>(Matrix(2, 1, {1, 1}), Matrix(1, 1, {0}))
+        std::tuple<Matrix, Matrix>(Matrix(1, 2, {0, 0}), Matrix(1, 2, {0, 1})),
+        std::tuple<Matrix, Matrix>(Matrix(1, 2, {0, 1}), Matrix(1, 2, {1, 0})),
+        std::tuple<Matrix, Matrix>(Matrix(1, 2, {1, 0}), Matrix(1, 2, {1, 0})),
+        std::tuple<Matrix, Matrix>(Matrix(1, 2, {1, 1}), Matrix(1, 2, {0, 1}))
     };
-
-    // // Dataset Batch
-    // auto input = Matrix(2, 4, { 
-    //     0, 0, 1, 1,
-    //     0, 1, 0, 1
-    // });
-    // auto label = Matrix(1, 4, { 
-    //     0, 1, 1, 0,
-    // });
 
     // Create vector of layers
     auto layers = buildNetwork();
@@ -98,7 +89,7 @@ int main(int argc, char *argv[])
 
     while (true)
     {   
-        if (iterCnt == 10000)
+        if (iterCnt == 1000)
         {
             break;
         }
@@ -116,16 +107,25 @@ int main(int argc, char *argv[])
                 output = layer->forward(output);
             }
 
-            error = ErrorFunc::meanSquareError(output, label);
+            // error += ErrorFunc::meanSquareError(output, label);
+            // auto grad = output - label;
+
+            error += ErrorFunc::softmaxCrossentropyWithLogits(output, label);
+            auto grad = ErrorFunc::gradSoftmaxCrossentropyWithLogits(output, label);
 
             // Backward
-            auto grad = output - label;
             for (auto it = layers.rbegin(); it != layers.rend(); ++it)
             {   
                 auto layer = *it;
                 grad = layer->backward(grad);
-            }
+            }        
         }
+        // Weight update
+        for (auto layer : layers)
+        {
+            layer->updateWeights();
+        } 
+
         std::cout << "Error: " << error << std::endl;
     }
 
@@ -136,6 +136,7 @@ int main(int argc, char *argv[])
     std::cout << "=====================================\n";
     std::cout << "Prediction\n";
 
+    float error = 0.f;
     for (auto [input, label] : dataXOR)
     {
         auto output = input;
@@ -143,11 +144,18 @@ int main(int argc, char *argv[])
         {
             output = layer->forward(output);
         }
+
+        auto probability = ErrorFunc::softMax(output);
+        //auto probability = output;
+        error += ErrorFunc::softmaxCrossentropyWithLogits(output, label);
+
         std::cout << "---------------\n";
         std::cout << "Input: " << input;
-        std::cout << "Prediction: " << output;
+        std::cout << "Prediction: " << probability;
         std::cout << "Label: " << label;
     }
+
+    std::cout << "Prediction error " << error << std::endl;
     
     std::cout << "End prediction\n";
     std::cout << "=====================================\n";

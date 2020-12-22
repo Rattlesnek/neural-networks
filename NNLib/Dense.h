@@ -33,6 +33,8 @@ public:
 
     virtual mathlib::Matrix backward(const mathlib::Matrix& gradient) override;  
 
+    virtual void updateWeights() override;
+
     // Methods
 private:
     void initializeWeightsAndBiases();

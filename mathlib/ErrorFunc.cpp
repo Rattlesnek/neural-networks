@@ -31,7 +31,7 @@ float ErrorFunc::meanSquareError(const Matrix& predictions, const Matrix& labels
     return 0.5f * result;
 }
 
-Matrix ErrorFunc::SoftMax(const Matrix& input, const Matrix& label)
+Matrix ErrorFunc::softMax(const Matrix& input)
 {
     float smSum(0.0);
     for (auto z : input.getVector())
@@ -46,7 +46,7 @@ Matrix ErrorFunc::SoftMax(const Matrix& input, const Matrix& label)
     return output;
 }
 
-float ErrorFunc::SoftmaxCrossentropyWithLogits(const Matrix& input, const Matrix& label)
+float ErrorFunc::softmaxCrossentropyWithLogits(const Matrix& input, const Matrix& label)
 {
     float smSum(0.0);
     for (auto z : input.getVector())
@@ -65,9 +65,9 @@ float ErrorFunc::SoftmaxCrossentropyWithLogits(const Matrix& input, const Matrix
     return -input[i_correct] + std::log(smSum);
 }
 
-Matrix ErrorFunc::GradSoftmaxCrossEntropyWithLogits(const Matrix& input, const Matrix& label)
+Matrix ErrorFunc::gradSoftmaxCrossentropyWithLogits(const Matrix& input, const Matrix& label)
 {
-    Matrix softmax = SoftMax(input,label);
+    Matrix softmax = softMax(input);
     int i_correct;
     for (int i = 0; i < input.getVector().size(); i++ )
     {
@@ -78,6 +78,5 @@ Matrix ErrorFunc::GradSoftmaxCrossEntropyWithLogits(const Matrix& input, const M
     }
     softmax[i_correct] = softmax[i_correct] - 1;
     return softmax;
-
 }
 

@@ -25,6 +25,11 @@ Activation::Activation(std::string name,
 
 Matrix Activation::forward(const Matrix& input)
 {
+    if (input.getRows() != output.getRows() || input.getCols() != output.getCols())
+    {
+        throw LayerException(name + " - Forward: input of wrong dimensions!");
+    }
+    
     output = activation->call(input);
     return output;
 }
