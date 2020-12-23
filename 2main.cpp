@@ -126,7 +126,7 @@ int main(int argc, char *argv[])
 
         for ( PicData dpic : dataPic)
         {
-            if (count == 200)
+            if (count == 40)
             {
                 break;
             }
@@ -139,11 +139,11 @@ int main(int argc, char *argv[])
                 output = layer->forward(output);
             }
 
-            auto help = ErrorFunc::softmaxCrossentropyWithLogits(output, label);
+            auto errors = ErrorFunc::softmaxCrossentropyWithLogits(output, label);
             //auto probability = output;
-            for (int i = 0; i < help.getRows(); i++)
+            for (int i = 0; i < errors.getRows(); i++)
             {
-                error += help(i,0);
+                error += errors(i, 0);
             }
             std::cout << "error variable; softmaxCrosseentropy with logits added:" << std::endl;
             std::cout << error << std::endl;
@@ -173,7 +173,7 @@ int main(int argc, char *argv[])
     int count1 = 0;
     for (auto dpic : dataPic)
     {
-        if (count1 == 200)
+        if (count1 == 40)
         {
             break;
         }
@@ -186,11 +186,11 @@ int main(int argc, char *argv[])
         }
 
         auto probability = ErrorFunc::softMax(output);
-        auto help = ErrorFunc::softmaxCrossentropyWithLogits(output, label);
+        auto errors = ErrorFunc::softmaxCrossentropyWithLogits(output, label);
         //auto probability = output;
-        for (int i = 0; i < help.getRows(); i++)
+        for (int i = 0; i < errors.getRows(); i++)
         {
-            error += help(i,0);
+            error += errors(i, 0);
         }
          
         std::cout << "ErrorFunc::softmaxCrossentropyWithLogits(output, label)" << std::endl;
