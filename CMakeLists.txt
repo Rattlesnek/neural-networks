@@ -1,22 +1,35 @@
 project(neural-networks)
-cmake_minimum_required(VERSION 3.6)
-set(CMAKE_CXX_STANDARD 14)
+cmake_minimum_required(VERSION 3.8)
+set(CMAKE_CXX_STANDARD 17)
 
 # Add Subprojects
 add_subdirectory(mathlib)
+add_subdirectory(NNLib)
 add_subdirectory(dataload)
 
 # Add Tests
 add_subdirectory(mathlib.tests)
-
+add_subdirectory(NNLib.tests)
+add_subdirectory(dataload.tests)
 
 # Add Main
 add_executable(main main.cpp)
+add_executable(2main 2main.cpp)
 # Link libraries
-target_link_libraries(main mathlib)
-target_link_libraries(main dataload)
+target_link_libraries(main mathlib NNLib dataload)
+
 target_include_directories(main PUBLIC
     "${PROJECT_BINARY_DIR}"
     "${PROJECT_SOURCE_DIR}/mathlib"
+    "${PROJECT_SOURCE_DIR}/NNLib"
+    "${PROJECT_SOURCE_DIR}/dataload"
+)
+
+target_link_libraries(2main mathlib NNLib dataload)
+
+target_include_directories(2main PUBLIC
+    "${PROJECT_BINARY_DIR}"
+    "${PROJECT_SOURCE_DIR}/mathlib"
+    "${PROJECT_SOURCE_DIR}/NNLib"
     "${PROJECT_SOURCE_DIR}/dataload"
 )

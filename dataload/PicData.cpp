@@ -22,8 +22,6 @@ PicData::PicData(std::vector<float> vec, int label, int rows, int cols) :
     createOneHotVector(label);
 }
 
-
-
 const Matrix PicData::getMat() const noexcept
 {
     return mat;

@@ -1,9 +1,8 @@
-project(dataload)
+project(NNLib)
 cmake_minimum_required(VERSION 3.8)
 set(CMAKE_CXX_STANDARD 17)
 
 include_directories(${CMAKE_SOURCE_DIR}/mathlib)
-
 
 link_directories(${CMAKE_BINARY_DIR}/mathlib)
 
@@ -18,5 +17,3 @@ add_library(${PROJECT_NAME} SHARED
 add_dependencies(${PROJECT_NAME} mathlib)
 
 target_link_libraries(${PROJECT_NAME} mathlib)
-
-

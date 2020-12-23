@@ -25,5 +25,6 @@ public:
 public:
     PicData loadPicture(int rows, int cols);
     std::vector<PicData> loadAllData(int rows, int cols);
+    std::vector<PicData> loadNData(int n, int rows, int cols);
 };
 }
