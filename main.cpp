@@ -112,7 +112,8 @@ int main(int argc, char *argv[])
 
             error += ErrorFunc::softmaxCrossentropyWithLogits(output, label)(0,0);
             auto grad = ErrorFunc::gradSoftmaxCrossentropyWithLogits(output, label);
-
+            std::cout << "Gradient of new ... : " << std::endl;
+            std::cout << grad << std::endl;
             // Backward
             for (auto it = layers.rbegin(); it != layers.rend(); ++it)
             {   

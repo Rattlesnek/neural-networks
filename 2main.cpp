@@ -22,7 +22,7 @@ std::vector<std::shared_ptr<ILayer>> buildNetwork()
     std::cout << "Height: " << input->getOutputHeight() << std::endl;
     std::cout << "Width: " << input->getOutputWidth() << std::endl;
 
-    std::shared_ptr<ILayer> dense1 = std::make_shared<Dense>("Dense_layer_hidden1", input, 4);
+    std::shared_ptr<ILayer> dense1 = std::make_shared<Dense>("Dense_layer_hidden1", input, 100);
     std::cout << "Name: " << dense1->getName() << std::endl;
     std::cout << "Height: " << dense1->getOutputHeight() << std::endl;
     std::cout << "Width: " << dense1->getOutputWidth() << std::endl;
@@ -32,7 +32,7 @@ std::vector<std::shared_ptr<ILayer>> buildNetwork()
     std::cout << "Height: " << activation1->getOutputHeight() << std::endl;
     std::cout << "Width: " << activation1->getOutputWidth() << std::endl;
 
-    std::shared_ptr<ILayer> dense2 = std::make_shared<Dense>("Dense_layer_hidden2", activation1, 5);
+    std::shared_ptr<ILayer> dense2 = std::make_shared<Dense>("Dense_layer_hidden2", activation1, 30);
     std::cout << "Name: " << dense2->getName() << std::endl;
     std::cout << "Height: " << dense2->getOutputHeight() << std::endl;
     std::cout << "Width: " << dense2->getOutputWidth() << std::endl;
@@ -85,9 +85,9 @@ int main(int argc, char *argv[])
     {
         executeTraining = true;
     }
-    DataLoader dl = DataLoader("/home/xkolla/neural-networks/data/fashion_mnist_train_vectors.csv",
-                                             "/home/xkolla/neural-networks/data/fashion_mnist_train_labels.csv");
-    std::vector<PicData> dataPic = dl.loadNData(2000, 1, 784);
+    DataLoader dl = DataLoader("../data/fashion_mnist_train_vectors.csv",
+                                             "../data/fashion_mnist_train_labels.csv");
+    std::vector<PicData> dataPic = dl.getOneOfEach(1, 784);
     std::vector<Matrix> pics;
     std::vector<Matrix> labels;
     getNPics(10, dataPic, pics, labels);
@@ -116,7 +116,7 @@ int main(int argc, char *argv[])
     int count = 0;
     while (true)
     {
-        if (iterations == 50)
+        if (iterations == 500)
         {
             break;
         }
@@ -126,7 +126,7 @@ int main(int argc, char *argv[])
 
         for ( PicData dpic : dataPic)
         {
-            if (count == 40)
+            if (count == 200)
             {
                 break;
             }
@@ -137,18 +137,25 @@ int main(int argc, char *argv[])
             for (auto layer : layers)
             {
                 output = layer->forward(output);
+                
             }
-
+            std::cout << "output after forwards:" << std::endl << output;
+            std::cout << "labels output :" << std::endl << label;
             auto errors = ErrorFunc::softmaxCrossentropyWithLogits(output, label);
             //auto probability = output;
             for (int i = 0; i < errors.getRows(); i++)
             {
                 error += errors(i, 0);
             }
-            std::cout << "error variable; softmaxCrosseentropy with logits added:" << std::endl;
+            
+            std::cout << "error variable, softmaxCrosseentropy with logits added:" << std::endl;
             std::cout << error << std::endl;
+            std::cout << "errors :" << std::endl;
+            std::cout << errors ;
             auto grad = ErrorFunc::gradSoftmaxCrossentropyWithLogits(output, label);
             
+            std::cout << "gradient: " << std::endl;
+            std::cout << grad;
             for (auto it = layers.rbegin(); it != layers.rend(); ++it)
             {   
                 auto layer = *it;
@@ -173,7 +180,7 @@ int main(int argc, char *argv[])
     int count1 = 0;
     for (auto dpic : dataPic)
     {
-        if (count1 == 40)
+        if (count1 == 200)
         {
             break;
         }

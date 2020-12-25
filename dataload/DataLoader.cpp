@@ -56,9 +56,11 @@ PicData DataLoader::loadPicture(int rows, int cols)
 
 std::vector<PicData> DataLoader::loadAllData(int rows, int cols)
 {
+    int count = 0;
     std::vector<PicData> pics;
     while (true)
     {
+        
         try
         {
             pics.emplace_back(loadPicture(rows, cols));
@@ -68,7 +70,9 @@ std::vector<PicData> DataLoader::loadAllData(int rows, int cols)
             std::cout << "end of file!\n";
             break;
         }
+        count++;
     }
+    std::cout << "number of pics: " << count << std::endl;
     return pics;
 }
 std::vector<PicData> DataLoader::loadNData(int n, int rows, int cols)
@@ -87,6 +91,19 @@ std::vector<PicData> DataLoader::loadNData(int n, int rows, int cols)
             break;
         }
         count += 1;
+    }
+    return pics;
+}
+std::vector<PicData> DataLoader::getOneOfEach(int rows, int cols)
+{
+    std::vector<PicData> pics;
+    for (int i = 0; i < 30; i++)
+    {
+        PicData x = loadPicture(rows,cols);
+        if (i == 0 || i == 3 || i == 29 || i == 4 || i == 5 || i == 7 || i == 2 || i == 21 || i == 9 || i == 1)
+        {
+            pics.emplace_back(x);
+        }
     }
     return pics;
 }

@@ -11,7 +11,7 @@ Dense::Dense(std::string name,
     int numOfNeurons, 
     int batchSize)
     :
-    BaseLayer(std::move(name), batchSize, numOfNeurons),
+    BaseLayer(std::move(name), batchSize, numOfNeurons), 
     previousLayer(previousLayer)
 {
     // Dummy constructor
@@ -77,7 +77,7 @@ Matrix Dense::backward(const Matrix& gradient)
 void Dense::updateWeights()
 {
     // TEMPORARY -- update now
-    const float alpha = 0.001f;
+    const float alpha = 0.5f;
     auto multiplyByAlpha = [&](float x) -> float { return alpha * x; };
     totalWeightUpdate.applyFunc(multiplyByAlpha);
     weights = weights - totalWeightUpdate;
@@ -94,8 +94,7 @@ void Dense::initializeWeightsAndBiases()
     // TODO
     std::default_random_engine generator;
     std::normal_distribution<float> distribution(0.f, 1.f);
-
-    auto randomInitialization = [&](float x) -> float { return distribution(generator); };
+    auto randomInitialization = [&](float x) -> float { auto z = distribution(generator) * std::sqrt(1.f/ previousLayer->getOutputWidth()); return z ; };
     weights.applyFunc(randomInitialization);
     biases.applyFunc(randomInitialization);
 }
