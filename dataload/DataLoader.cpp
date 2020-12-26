@@ -75,6 +75,7 @@ std::vector<PicData> DataLoader::loadAllData(int rows, int cols)
     std::cout << "number of pics: " << count << std::endl;
     return pics;
 }
+
 std::vector<PicData> DataLoader::loadNOfEach(int n, int rows, int cols)
 {
     std::vector<PicData> pics;
@@ -114,6 +115,7 @@ std::vector<PicData> DataLoader::loadNOfEach(int n, int rows, int cols)
     std::cout << std::endl;
     return pics;
 }
+
 std::vector<PicData> DataLoader::getOneOfEach(int rows, int cols)
 {
     std::vector<PicData> pics;
