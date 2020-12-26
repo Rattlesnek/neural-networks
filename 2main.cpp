@@ -130,13 +130,16 @@ int main(int argc, char *argv[])
     }
     DataLoader dl = DataLoader("../data/fashion_mnist_train_vectors.csv",
                                              "../data/fashion_mnist_train_labels.csv");
-    std::vector<PicData> dataPic = dl.loadNOfEach(20, 1, 784);
+    std::vector<PicData> dataPic = dl.loadNOfEach(200, 1, 784);
     std::random_shuffle(dataPic.begin(), dataPic.end(),[&](int i) {return std::rand() % i;} );
-    std::vector<Matrix> pics;
-    std::vector<Matrix> labels;
-    getNPics(10, dataPic, pics, labels);
+
+    // std::vector<Matrix> pics;
+    // std::vector<Matrix> labels;
+    // getNPics(10, dataPic, pics, labels);
+
     auto layers = buildNetwork();
-    std::cout << "just printing inputs : "<< dataPic.size() << std::endl;
+
+    //std::cout << "just printing inputs : "<< dataPic.size() << std::endl;
     // for (int i = 0; i < dataPic.size(); i++) 
     // {
         
@@ -152,34 +155,40 @@ int main(int argc, char *argv[])
     std::cout << "=====================================\n";
     std::cout << "Training\n";
 
-    int Epocha = 0;
-    int batchIndex = 0;
-    
+    int epocha = 0;
+    int datasetIndex = 0;
+    auto totalStartTraining = std::chrono::steady_clock::now();
     while (true)
     {
         auto startTraining = std::chrono::steady_clock::now();
-        batchIndex = 0;
-        if (Epocha == 100)
+        datasetIndex = 0;
+
+        if (epocha == 100)
         {
             break;
         }
+
         std::cout << "------------------------------------------\n";
-        std::cout << "Epocha no." << ++Epocha << std::endl;
+        std::cout << "Epocha no." << ++epocha << std::endl;
+
         //std::cout << dataPic.size() << "<--- datapic size" << std::endl;
         float error = 0.f;
+
         // cycle for batches
-        while( batchIndex < dataPic.size())
+        while( datasetIndex < dataPic.size())
         {
-            //std::cout << batchIndex << "<--- batch index" << std::endl;
+            //std::cout << datasetIndex << "<--- batch index" << std::endl;
+
+            //One Batch
             for ( int picIndex = 0; picIndex < 20; picIndex ++)
             {
-                if(batchIndex + picIndex >= dataPic.size())
+                if(datasetIndex + picIndex >= dataPic.size())
                 {
                     break;
                 }
                 // Forward
-                Matrix label = dataPic[batchIndex + picIndex].getLabel();
-                Matrix output = dataPic[batchIndex + picIndex].getMat();
+                Matrix label = dataPic[datasetIndex + picIndex].getLabel();
+                Matrix output = dataPic[datasetIndex + picIndex].getMat();
                 for (auto layer : layers)
                 {
                     output = layer->forward(output);
@@ -198,10 +207,12 @@ int main(int argc, char *argv[])
                 // std::cout << error << std::endl;
                 // std::cout << "errors :" << std::endl;
                 // std::cout << errors ;
+
                 auto grad = ErrorFunc::gradSoftmaxCrossentropyWithLogits(output, label);
                 
                 // std::cout << "gradient: " << std::endl;
                 // std::cout << grad;
+
                 // Backward
                 for (auto it = layers.rbegin(); it != layers.rend(); ++it)
                 {   
@@ -209,20 +220,24 @@ int main(int argc, char *argv[])
                     grad = layer->backward(grad);
                 }
             }
-            batchIndex += 20;
+
+            datasetIndex += 20;
+
             for (auto layer : layers)
             {
-                layer->updateWeights(Epocha);
+                layer->updateWeights(epocha);
             }
         }
         auto endTraining = std::chrono::steady_clock::now();
-        std::cout << "Elapsed time in training Epocha no. " << Epocha << " : "
+        std::cout << "Elapsed time in training Epocha no. " << epocha << " : "
         << std::chrono::duration_cast<std::chrono::seconds>(endTraining - startTraining).count()
         << " sec" << std::endl;
 
         // std::cout << "Error: " << error << std::endl;
     }
-    
+    auto totalEndTraining = std::chrono::steady_clock::now();
+    std::cout << std::chrono::duration_cast<std::chrono::seconds>(totalEndTraining - totalStartTraining).count()
+    << " sec" << std::endl;
     std::cout << "------------------------------------------\n";
     std::cout << "End training\n";
     std::cout << "=====================================\n";
