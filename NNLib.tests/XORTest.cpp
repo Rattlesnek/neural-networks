@@ -105,7 +105,7 @@ TEST(XORTest, Integration)
         // Weight update
         for (auto layer : layers)
         {
-            layer->updateWeights();
+            layer->updateWeights(iterCnt);
         } 
 
         std::cout << "Total Error: " << totalError << std::endl;

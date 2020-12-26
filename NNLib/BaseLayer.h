@@ -31,7 +31,7 @@ public:
 
     virtual const mathlib::Matrix& getLastOutput() const noexcept override;
 
-    virtual void updateWeights() override;
+    virtual void updateWeights(int it) override;
 
 };
 

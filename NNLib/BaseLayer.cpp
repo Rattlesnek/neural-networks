@@ -34,7 +34,7 @@ const Matrix& BaseLayer::getLastOutput() const noexcept
     return output;
 }
 
-void BaseLayer::updateWeights()
+void BaseLayer::updateWeights(int it)
 {
     // NOOP
 }

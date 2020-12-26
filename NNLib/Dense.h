@@ -36,7 +36,7 @@ public:
 
     virtual mathlib::Matrix backward(const mathlib::Matrix& gradient) override;  
 
-    virtual void updateWeights() override;
+    virtual void updateWeights(int it) override;
 
     // Methods
 private:

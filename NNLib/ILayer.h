@@ -26,7 +26,7 @@ public:
     
     virtual mathlib::Matrix backward(const mathlib::Matrix& gradient) = 0;
 
-    virtual void updateWeights() = 0;
+    virtual void updateWeights(int it) = 0;
 
 };
 

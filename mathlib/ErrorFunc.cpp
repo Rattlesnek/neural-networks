@@ -1,7 +1,8 @@
-#include "ErrorFunc.h"
 #include <numeric>
 #include <cmath>
 #include <cfloat>
+#include "ErrorFunc.h"
+
 
 using namespace mathlib;
 
@@ -58,9 +59,9 @@ Matrix ErrorFunc::softMax(const Matrix& input)
     // std::cout << input;
     // std::cout << "input_copy matrix:" << std::endl;
     // std::cout << input_copy;
-    std::cout << "output matrix:" << std::endl;
-    std::cout << output;
-    std::cout << "======================================="<< std::endl;
+    // std::cout << "output matrix:" << std::endl;
+    // std::cout << output;
+    // std::cout << "======================================="<< std::endl;
     return output;
 }
 

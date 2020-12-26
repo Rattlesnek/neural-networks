@@ -12,6 +12,7 @@ class PicData
 private:
     mathlib::Matrix mat;
     mathlib::Matrix label;
+    int index;
 
     void createOneHotVector(int i);
 
@@ -23,5 +24,6 @@ public:
 public:
     const mathlib::Matrix getMat() const noexcept;  
     const mathlib::Matrix getLabel() const noexcept;
+    const int getIndex() const noexcept;
 };
 }

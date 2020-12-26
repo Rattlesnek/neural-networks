@@ -75,23 +75,43 @@ std::vector<PicData> DataLoader::loadAllData(int rows, int cols)
     std::cout << "number of pics: " << count << std::endl;
     return pics;
 }
-std::vector<PicData> DataLoader::loadNData(int n, int rows, int cols)
+std::vector<PicData> DataLoader::loadNOfEach(int n, int rows, int cols)
 {
     std::vector<PicData> pics;
     int count = 0;
-    while (count < n)
+    std::vector<int> counts(10);
+    std::cout << "startcounts: "<<  std::endl;
+    
+    for (auto i = counts.begin(); i != counts.end(); ++i)
     {
+    std::cout << *i << ' ';
+    }
+    std::cout << std::endl;
+    while (pics.size() < 10 * n)
+    {
+        
         try
         {
-            pics.emplace_back(loadPicture(rows, cols));
+            auto pic = loadPicture(rows, cols);
+            if (counts[pic.getIndex()] < n)
+            {
+                pics.emplace_back(pic);
+                counts[pic.getIndex()] += 1;
+            }
         }
         catch(const EOFException& e)
         {
             std::cout << "end of file!\n";
             break;
         }
-        count += 1;
+        
     }
+    std::cout << "endcounts: "<< std::endl;
+    for (auto i = counts.begin(); i != counts.end(); ++i)
+    {
+    std::cout << *i << ' ';
+    }
+    std::cout << std::endl;
     return pics;
 }
 std::vector<PicData> DataLoader::getOneOfEach(int rows, int cols)
@@ -107,3 +127,5 @@ std::vector<PicData> DataLoader::getOneOfEach(int rows, int cols)
     }
     return pics;
 }
+
+
