@@ -10,7 +10,8 @@ BaseLayer::BaseLayer(std::string name,
     int outputWidth)
     :
     name(std::move(name)),
-    output(outputHeight, outputWidth)
+    outputHeight(outputHeight),
+    outputWidth(outputWidth)
 {
 }
 
@@ -21,20 +22,15 @@ const std::string& BaseLayer::getName() const noexcept
 
 int BaseLayer::getOutputHeight() const noexcept
 {
-    return output.getRows();
+    return outputHeight;
 }
 
 int BaseLayer::getOutputWidth() const noexcept
 {
-    return output.getCols();
-}
-
-const Matrix& BaseLayer::getLastOutput() const noexcept
-{
-    return output;
+    return outputWidth;
 }
 
 void BaseLayer::updateWeights(int it)
 {
-    // NOOP
+    // No Operation
 }

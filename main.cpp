@@ -2,6 +2,8 @@
 #include <memory>
 #include <algorithm>
 #include <string>
+#include <omp.h>
+#include <unistd.h>
 
 #include "MathLib.hpp"
 #include "DataLoad.hpp"
@@ -22,12 +24,12 @@ std::vector<std::shared_ptr<ILayer>> buildNetwork()
     std::cout << "Height: " << input->getOutputHeight() << std::endl;
     std::cout << "Width: " << input->getOutputWidth() << std::endl;
 
-    std::shared_ptr<ILayer> dense1 = std::make_shared<Dense>("Dense_layer_hidden", input, 6);
+    std::shared_ptr<ILayer> dense1 = std::make_shared<Dense>("Dense_layer_hidden", input, 2);
     std::cout << "Name: " << dense1->getName() << std::endl;
     std::cout << "Height: " << dense1->getOutputHeight() << std::endl;
     std::cout << "Width: " << dense1->getOutputWidth() << std::endl;
 
-    std::shared_ptr<ILayer> activation1 = std::make_shared<Activation>("Activation_hidden", dense1, std::make_shared<Sigmoid>());
+    std::shared_ptr<ILayer> activation1 = std::make_shared<Activation>("Activation_hidden", dense1, std::make_shared<ReLU>());
     std::cout << "Name: " << activation1->getName() << std::endl;
     std::cout << "Height: " << activation1->getOutputHeight() << std::endl;
     std::cout << "Width: " << activation1->getOutputWidth() << std::endl;
@@ -45,7 +47,7 @@ std::vector<std::shared_ptr<ILayer>> buildNetwork()
     std::vector<std::shared_ptr<ILayer>> layers = {
         input,
         dense1,
-        activation1, 
+        activation1,
         dense2,
         //activation2
     };
@@ -80,16 +82,19 @@ int main(int argc, char *argv[])
     if (!executeTraining)
     {
         return 0;
-    }
+    }    
 
     std::cout << "=====================================\n";
     std::cout << "Training\n";
+
+    // set number of threads
+    omp_set_num_threads(4);
 
     int iterCnt = 0;
 
     while (true)
     {   
-        if (iterCnt == 1000)
+        if (iterCnt == 10000)
         {
             break;
         }
@@ -98,27 +103,27 @@ int main(int argc, char *argv[])
         std::cout << "Iteration no." << ++iterCnt << " ";
         
         float error = 0.f;
+        #pragma omp parallel for
         for (auto [input, label] : dataXOR)
         {
             // Forward
-            auto output = input;
+            std::vector<Matrix> inputs = { input };
             for (auto layer : layers)
             {
-                output = layer->forward(output);
+                inputs.emplace_back(layer->forward(inputs.back()));
             }
 
-            // error += ErrorFunc::meanSquareError(output, label);
-            // auto grad = output - label;
-
-            error += ErrorFunc::softmaxCrossentropyWithLogits(output, label)(0,0);
+            const auto& output = inputs.back(); 
+            #pragma omp critical
+            {
+                error += ErrorFunc::softmaxCrossentropyWithLogits(output, label)(0,0);
+            }
             auto grad = ErrorFunc::gradSoftmaxCrossentropyWithLogits(output, label);
-            std::cout << "Gradient of new ... : " << std::endl;
-            std::cout << grad << std::endl;
+            
             // Backward
-            for (auto it = layers.rbegin(); it != layers.rend(); ++it)
+            for (int i = layers.size() - 1; i >= 0; --i)
             {   
-                auto layer = *it;
-                grad = layer->backward(grad);
+                grad = layers[i]->backward(inputs[i], grad);
             }        
         }
         // Weight update
@@ -147,10 +152,8 @@ int main(int argc, char *argv[])
         }
 
         auto probability = ErrorFunc::softMax(output);
-        //auto probability = output;
         error += ErrorFunc::softmaxCrossentropyWithLogits(output, label)(0,0);
-
-        std::cout << "---------------\n";
+        std::cout << "--------------------------\n";
         std::cout << "Input: " << input;
         std::cout << "Prediction: " << probability;
         std::cout << "Label: " << label;

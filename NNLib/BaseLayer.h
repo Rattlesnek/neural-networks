@@ -12,8 +12,8 @@ class BaseLayer : public ILayer
     // Fields
 protected:
     std::string name;
-
-    mathlib::Matrix output;
+    int outputHeight;
+    int outputWidth;
 
     // Constructor / destructor
 public:

@@ -13,18 +13,17 @@ Input::Input(std::string name,
 {
 }
 
-Matrix Input::forward(const Matrix& input)
+Matrix Input::forward(const Matrix& input) const
 {
-    if (input.getRows() != output.getRows() || input.getCols() != output.getCols())
+    if (input.getRows() != outputHeight || input.getCols() != outputWidth)
     {
         throw LayerException(name + " - Forward: input of wrong dimensions!");
     }
 
-    output = input;
-    return output;
+    return input;
 }
 
-Matrix Input::backward(const Matrix& errorNeuronGradient)
+Matrix Input::backward(const Matrix& input, const Matrix& errorNeuronGradient)
 {
     return errorNeuronGradient;
 }

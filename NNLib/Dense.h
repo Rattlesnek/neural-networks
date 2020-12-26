@@ -27,14 +27,12 @@ public:
         int numOfNeurons,       
         int batchSize = 1);
 
-    
-
     // Methods
 public:
 
-    virtual mathlib::Matrix forward(const mathlib::Matrix& input) override;
+    virtual mathlib::Matrix forward(const mathlib::Matrix& input) const override;
 
-    virtual mathlib::Matrix backward(const mathlib::Matrix& gradient) override;  
+    virtual mathlib::Matrix backward(const mathlib::Matrix& input, const mathlib::Matrix& gradient) override;  
 
     virtual void updateWeights(int it) override;
 
