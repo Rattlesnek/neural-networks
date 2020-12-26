@@ -104,10 +104,11 @@ int main(int argc, char *argv[])
         
         float error = 0.f;
         #pragma omp parallel for
-        for (auto [input, label] : dataXOR)
+        for (int i = 0; i < (int)dataXOR.size(); i++)
         {
             // Forward
-            std::vector<Matrix> inputs = { input };
+            auto label = std::get<1>(dataXOR[i]);
+            std::vector<Matrix> inputs = { std::get<0>(dataXOR[i]) };
             for (auto layer : layers)
             {
                 inputs.emplace_back(layer->forward(inputs.back()));
