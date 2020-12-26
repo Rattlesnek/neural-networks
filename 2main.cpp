@@ -130,7 +130,11 @@ int main(int argc, char *argv[])
     }
     DataLoader dl = DataLoader("../data/fashion_mnist_train_vectors.csv",
                                              "../data/fashion_mnist_train_labels.csv");
-    std::vector<PicData> dataPic = dl.loadNOfEach(200, 1, 784);
+
+    // Change the leftmost number here for taking data out
+
+    std::vector<PicData> dataPic = dl.loadNOfEach(300, 1, 784);
+    
     std::random_shuffle(dataPic.begin(), dataPic.end(),[&](int i) {return std::rand() % i;} );
 
     // std::vector<Matrix> pics;
