@@ -29,14 +29,14 @@ target_include_directories(main PUBLIC
     "${PROJECT_SOURCE_DIR}/dataload"
 )
 
-# Add second main
-# add_executable(2main 2main.cpp)
+#Add second main
+add_executable(2main 2main.cpp)
 
-# target_link_libraries(2main mathlib NNLib dataload)
+target_link_libraries(2main mathlib NNLib dataload)
 
-# target_include_directories(2main PUBLIC
-#     "${PROJECT_BINARY_DIR}"
-#     "${PROJECT_SOURCE_DIR}/mathlib"
-#     "${PROJECT_SOURCE_DIR}/NNLib"
-#     "${PROJECT_SOURCE_DIR}/dataload"
-# )
+target_include_directories(2main PUBLIC
+    "${PROJECT_BINARY_DIR}"
+    "${PROJECT_SOURCE_DIR}/mathlib"
+    "${PROJECT_SOURCE_DIR}/NNLib"
+    "${PROJECT_SOURCE_DIR}/dataload"
+)

@@ -133,10 +133,10 @@ int main(int argc, char *argv[])
 
     // Change the leftmost number here for taking data out
 
-    std::vector<PicData> dataPic = dl.loadNOfEach(300, 1, 784);
-    
-    std::random_shuffle(dataPic.begin(), dataPic.end(),[&](int i) {return std::rand() % i;} );
-
+    //std::vector<PicData> dataPicValid = dl.loadNOfEach(600, 1, 784);
+    auto validTrainData = dl.getValidTrain(1, 784);
+    //std::random_shuffle(dataPic.begin(), dataPic.end(),[&](int i) {return std::rand() % i;} );
+    std::vector<PicData> dataPic = std::get<1>(validTrainData);
     // std::vector<Matrix> pics;
     // std::vector<Matrix> labels;
     // getNPics(10, dataPic, pics, labels);
@@ -221,7 +221,7 @@ int main(int argc, char *argv[])
                 for (auto it = layers.rbegin(); it != layers.rend(); ++it)
                 {   
                     auto layer = *it;
-                    grad = layer->backward(grad);
+                    grad = layer->backward(output, grad);
                 }
             }
 
@@ -251,39 +251,39 @@ int main(int argc, char *argv[])
 
     float error = 0.f;
     float correctPred = 0;
-    for (auto dpic : dataPic)
-    {
-        Matrix label = dpic.getLabel();
-        Matrix output = dpic.getMat();
-        for (auto layer : layers)
-        {
-            output = layer->forward(output);
-        }
+    // for (auto dpic : dataPic)
+    // {
+    //     Matrix label = dpic.getLabel();
+    //     Matrix output = dpic.getMat();
+    //     for (auto layer : layers)
+    //     {
+    //         output = layer->forward(output);
+    //     }
 
-        auto probability = ErrorFunc::softMax(output);
-        auto errors = ErrorFunc::softmaxCrossentropyWithLogits(output, label);
-        //auto probability = output;
-        for (int i = 0; i < errors.getRows(); i++)
-        {
-            error += errors(i, 0);
-        }
+    //     auto probability = ErrorFunc::softMax(output);
+    //     auto errors = ErrorFunc::softmaxCrossentropyWithLogits(output, label);
+    //     //auto probability = output;
+    //     for (int i = 0; i < errors.getRows(); i++)
+    //     {
+    //         error += errors(i, 0);
+    //     }
          
-        //std::cout << "ErrorFunc::softmaxCrossentropyWithLogits(output, label)" << std::endl;
-        std::cout << ErrorFunc::softmaxCrossentropyWithLogits(output, label);
-        std::cout << "---------------\n";
-        //std::cout << "Input: " << dpic.getMat();
-        std::cout << "Prediction: " << probability << std::endl;
-        std::cout << "Label: " << label;
-        if (correctPrediction(probability, label))
-        {
-            correctPred += 1.f;
-        }
-    }
+    //     //std::cout << "ErrorFunc::softmaxCrossentropyWithLogits(output, label)" << std::endl;
+    //     std::cout << ErrorFunc::softmaxCrossentropyWithLogits(output, label);
+    //     std::cout << "---------------\n";
+    //     //std::cout << "Input: " << dpic.getMat();
+    //     std::cout << "Prediction: " << probability << std::endl;
+    //     std::cout << "Label: " << label;
+    //     if (correctPrediction(probability, label))
+    //     {
+    //         correctPred += 1.f;
+    //     }
+    // }
 
-    std::cout << "Prediction error " << error << std::endl;
-    std::cout << "percentage correct: " << std::endl;
-    std::cout << (correctPred/((float)dataPic.size()) )*100.f << "%" << std::endl;
-    std::cout << "End prediction\n";
-    std::cout << "=====================================\n";
+    // std::cout << "Prediction error " << error << std::endl;
+    // std::cout << "percentage correct: " << std::endl;
+    // std::cout << (correctPred/((float)dataPic.size()) )*100.f << "%" << std::endl;
+    // std::cout << "End prediction\n";
+    // std::cout << "=====================================\n";
     return 0 ;
 }
