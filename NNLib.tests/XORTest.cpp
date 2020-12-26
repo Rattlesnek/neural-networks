@@ -26,27 +26,27 @@ std::vector<std::shared_ptr<ILayer>> buildNetwork()
     std::cout << "Height: " << dense1->getOutputHeight() << std::endl;
     std::cout << "Width: " << dense1->getOutputWidth() << std::endl;
 
-    std::shared_ptr<ILayer> activation1 = std::make_shared<Activation>("Activation_hidden", dense1, std::make_shared<Sigmoid>());
+    std::shared_ptr<ILayer> activation1 = std::make_shared<Activation>("Activation_hidden", dense1, std::make_shared<ReLU>());
     std::cout << "Name: " << activation1->getName() << std::endl;
     std::cout << "Height: " << activation1->getOutputHeight() << std::endl;
     std::cout << "Width: " << activation1->getOutputWidth() << std::endl;
 
-    std::shared_ptr<ILayer> dense2 = std::make_shared<Dense>("Dense_layer_output", activation1, 1);
+    std::shared_ptr<ILayer> dense2 = std::make_shared<Dense>("Dense_layer_output", activation1, 2);
     std::cout << "Name: " << dense2->getName() << std::endl;
     std::cout << "Height: " << dense2->getOutputHeight() << std::endl;
     std::cout << "Width: " << dense2->getOutputWidth() << std::endl;
 
-    std::shared_ptr<ILayer> activation2 = std::make_shared<Activation>("Activation_output", dense2, std::make_shared<Sigmoid>());
-    std::cout << "Name: " << activation2->getName() << std::endl;
-    std::cout << "Height: " << activation2->getOutputHeight() << std::endl;
-    std::cout << "Width: " << activation2->getOutputWidth() << std::endl;
+    // std::shared_ptr<ILayer> activation2 = std::make_shared<Activation>("Activation_output", dense2, std::make_shared<Sigmoid>());
+    // std::cout << "Name: " << activation2->getName() << std::endl;
+    // std::cout << "Height: " << activation2->getOutputHeight() << std::endl;
+    // std::cout << "Width: " << activation2->getOutputWidth() << std::endl;
 
     std::vector<std::shared_ptr<ILayer>> layers = {
         input,
         dense1,
-        activation1, 
+        activation1,
         dense2,
-        activation2
+        //activation2
     };
 
     std::cout << "End network architecture\n";
@@ -55,52 +55,62 @@ std::vector<std::shared_ptr<ILayer>> buildNetwork()
     return layers;
 }
 
+TEST(XORTest, XOR_2D_Integration)
+{  
 
-TEST(XORTest, Integration)
-{
     // Dataset
     // tuple(XOR-input, one-hot-vector)
     std::vector<std::tuple<Matrix, Matrix>> dataXOR = {
-        std::tuple<Matrix, Matrix>(Matrix(1, 2, {0, 0}), Matrix(1, 1, {0})),
-        std::tuple<Matrix, Matrix>(Matrix(1, 2, {0, 1}), Matrix(1, 1, {1})),
-        std::tuple<Matrix, Matrix>(Matrix(1, 2, {1, 0}), Matrix(1, 1, {1})),
-        std::tuple<Matrix, Matrix>(Matrix(1, 2, {1, 1}), Matrix(1, 1, {0}))
+        std::tuple<Matrix, Matrix>(Matrix(1, 2, {0, 0}), Matrix(1, 2, {0, 1})),
+        std::tuple<Matrix, Matrix>(Matrix(1, 2, {0, 1}), Matrix(1, 2, {1, 0})),
+        std::tuple<Matrix, Matrix>(Matrix(1, 2, {1, 0}), Matrix(1, 2, {1, 0})),
+        std::tuple<Matrix, Matrix>(Matrix(1, 2, {1, 1}), Matrix(1, 2, {0, 1}))
     };
 
     // Create vector of layers
-    auto layers = buildNetwork();
+    auto layers = buildNetwork();  
 
     std::cout << "=====================================\n";
     std::cout << "Training\n";
 
+    // set number of threads
+    //omp_set_num_threads(4);
+
     int iterCnt = 0;
+
     while (true)
     {   
-        if (iterCnt == 5000)
+        if (iterCnt == 1000)
         {
             break;
         }
 
-        std::cout << "Iteration no." << ++iterCnt << "\t";
-        float totalError = 0.f;
+        std::cout << "------------------------------------------\n";
+        std::cout << "Iteration no." << ++iterCnt << " ";
+        
+        float error = 0.f;
+        #pragma omp parallel for
         for (auto [input, label] : dataXOR)
-        {            
+        {
             // Forward
-            auto output = input;
+            std::vector<Matrix> inputs = { input };
             for (auto layer : layers)
             {
-                output = layer->forward(output);
+                inputs.emplace_back(layer->forward(inputs.back()));
             }
-            
-            totalError += ErrorFunc::meanSquareError(output, label);
 
-            // Backward       
-            auto grad = output - label;
-            for (auto it = layers.rbegin(); it != layers.rend(); ++it)
-            {   
-                auto layer = *it;
-                grad = layer->backward(grad);
+            const auto& output = inputs.back(); 
+            #pragma omp critical
+            {
+                error += ErrorFunc::softmaxCrossentropyWithLogits(output, label)(0,0);
             }
+            auto grad = ErrorFunc::gradSoftmaxCrossentropyWithLogits(output, label);
+            
+            // Backward
+            for (int i = layers.size() - 1; i >= 0; --i)
+            {   
+                grad = layers[i]->backward(inputs[i], grad);
+            }        
         }
         // Weight update
         for (auto layer : layers)
@@ -108,16 +118,17 @@ TEST(XORTest, Integration)
             layer->updateWeights();
         } 
 
-        std::cout << "Total Error: " << totalError << std::endl;
+        std::cout << "Error: " << error << std::endl;
     }
 
+    std::cout << "------------------------------------------\n";
     std::cout << "End training\n";
     std::cout << "=====================================\n";
 
     std::cout << "=====================================\n";
     std::cout << "Prediction\n";
 
-    float predictionError = 0.f;
+    float error = 0.f;
     for (auto [input, label] : dataXOR)
     {
         auto output = input;
@@ -125,17 +136,35 @@ TEST(XORTest, Integration)
         {
             output = layer->forward(output);
         }
-        predictionError += ErrorFunc::meanSquareError(output, label);
 
-        std::cout << "---------------\n";
+        auto probability = ErrorFunc::softMax(output);
+        error += ErrorFunc::softmaxCrossentropyWithLogits(output, label)(0,0);
+        std::cout << "--------------------------\n";
         std::cout << "Input: " << input;
-        std::cout << "Prediction: " << output;
+        std::cout << "Prediction: " << probability;
         std::cout << "Label: " << label;
     }
+
+    std::cout << "Prediction error " << error << std::endl;
     
     std::cout << "End prediction\n";
     std::cout << "=====================================\n";
-    std::cout << "Prediction Error: " << predictionError << std::endl;
-    std::cout << "=====================================\n";
-    EXPECT_TRUE(predictionError < 2);
+
+    EXPECT_TRUE(error < 0.1f);
+}
+
+TEST(XORTest, XOR_3D_Integration)
+{  
+    // Dataset
+    // tuple(XOR-input, one-hot-vector)
+    std::vector<std::tuple<Matrix, Matrix>> dataXOR = {
+        std::tuple<Matrix, Matrix>(Matrix(1, 3, {0, 0, 0}), Matrix(1, 3, {1, 0, 0})),
+        std::tuple<Matrix, Matrix>(Matrix(1, 3, {0, 0, 1}), Matrix(1, 3, {0, 1, 0})),
+        std::tuple<Matrix, Matrix>(Matrix(1, 3, {0, 1, 0}), Matrix(1, 3, {0, 0, 1})),
+        std::tuple<Matrix, Matrix>(Matrix(1, 3, {0, 1, 1}), Matrix(1, 3, {0, 0, 1})),
+        std::tuple<Matrix, Matrix>(Matrix(1, 3, {1, 0, 0}), Matrix(1, 3, {0, 1, 0})),
+        std::tuple<Matrix, Matrix>(Matrix(1, 3, {1, 0, 1}), Matrix(1, 3, {0, 0, 1})),
+        std::tuple<Matrix, Matrix>(Matrix(1, 3, {1, 1, 0}), Matrix(1, 3, {0, 1, 0})),
+        std::tuple<Matrix, Matrix>(Matrix(1, 3, {1, 1, 1}), Matrix(1, 3, {1, 0, 0}))
+    };
 }

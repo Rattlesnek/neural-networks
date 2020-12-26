@@ -12,8 +12,8 @@ class BaseLayer : public ILayer
     // Fields
 protected:
     std::string name;
-
-    mathlib::Matrix output;
+    int outputHeight;
+    int outputWidth;
 
     // Constructor / destructor
 public:
@@ -28,8 +28,6 @@ public:
     virtual int getOutputHeight() const noexcept override;
 
     virtual int getOutputWidth() const noexcept override;
-
-    virtual const mathlib::Matrix& getLastOutput() const noexcept override;
 
     virtual void updateWeights() override;
 

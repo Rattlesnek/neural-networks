@@ -113,10 +113,9 @@ int main(int argc, char *argv[])
     std::cout << "Training\n";
 
     int iterations = 0;
-    int count = 0;
     while (true)
     {
-        if (iterations == 500)
+        if (iterations == 10)
         {
             break;
         }
@@ -124,9 +123,10 @@ int main(int argc, char *argv[])
         std::cout << "Iteration no." << ++iterations << " ";
         float error = 0.f;
 
-        for ( PicData dpic : dataPic)
+        int count = 0;
+        for (PicData dpic : dataPic)
         {
-            if (count == 200)
+            if (count == 20)
             {
                 break;
             }
@@ -137,10 +137,10 @@ int main(int argc, char *argv[])
             for (auto layer : layers)
             {
                 output = layer->forward(output);
-                
             }
-            std::cout << "output after forwards:" << std::endl << output;
-            std::cout << "labels output :" << std::endl << label;
+            
+            // std::cout << "output after forwards:" << std::endl << output;
+            // std::cout << "labels output :" << std::endl << label;
             auto errors = ErrorFunc::softmaxCrossentropyWithLogits(output, label);
             //auto probability = output;
             for (int i = 0; i < errors.getRows(); i++)
@@ -148,20 +148,19 @@ int main(int argc, char *argv[])
                 error += errors(i, 0);
             }
             
-            std::cout << "error variable, softmaxCrosseentropy with logits added:" << std::endl;
-            std::cout << error << std::endl;
-            std::cout << "errors :" << std::endl;
-            std::cout << errors ;
+            // std::cout << "error variable, softmaxCrosseentropy with logits added:" << std::endl;
+            // std::cout << error << std::endl;
+            // std::cout << "errors :" << std::endl;
+            // std::cout << errors ;
             auto grad = ErrorFunc::gradSoftmaxCrossentropyWithLogits(output, label);
-            
-            std::cout << "gradient: " << std::endl;
-            std::cout << grad;
+
             for (auto it = layers.rbegin(); it != layers.rend(); ++it)
             {   
                 auto layer = *it;
                 grad = layer->backward(grad);
             }
         }
+
         for (auto layer : layers)
         {
             layer->updateWeights();

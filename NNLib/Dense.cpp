@@ -37,7 +37,7 @@ Dense::Dense(std::string name,
     initializeWeightsAndBiases();
 }
 
-Matrix Dense::forward(const Matrix& input)
+Matrix Dense::forward(const Matrix& input) const
 {
     //dummy implementation
     if (! input.isRowVector())
@@ -46,11 +46,10 @@ Matrix Dense::forward(const Matrix& input)
     }
 
     // 1. Step
-    output = input * weights + biases;
-    return output;
+    return input * weights + biases;
 }
 
-Matrix Dense::backward(const Matrix& gradient)
+Matrix Dense::backward(const Matrix& input, const Matrix& gradient)
 {
     //dummy implementation
     if (! gradient.isRowVector())
@@ -64,20 +63,22 @@ Matrix Dense::backward(const Matrix& gradient)
 
     // 3. Step
     // calculate single weight and bias update
-    Matrix singleWeightUpdate = previousLayer->getLastOutput().T() * gradient;
+    Matrix singleWeightUpdate = input.T() * gradient;
     Matrix singleBiasUpdate = gradient; // ???
 
     // 4. Step TODO
-    totalWeightUpdate = totalWeightUpdate + singleWeightUpdate;
-    totalBiasesUpdate = totalBiasesUpdate + singleBiasUpdate;
-
+    #pragma omp critical
+    {
+        totalWeightUpdate = totalWeightUpdate + singleWeightUpdate;
+        totalBiasesUpdate = totalBiasesUpdate + singleBiasUpdate;
+    }
     return nextGradient.T();
 }
 
 void Dense::updateWeights()
 {
     // TEMPORARY -- update now
-    const float alpha = 0.5f;
+    const float alpha = 0.1f;
     auto multiplyByAlpha = [&](float x) -> float { return alpha * x; };
     totalWeightUpdate.applyFunc(multiplyByAlpha);
     weights = weights - totalWeightUpdate;
