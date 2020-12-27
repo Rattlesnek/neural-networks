@@ -26,7 +26,6 @@ public:
     PicData loadPicture(int rows, int cols);
     std::vector<PicData> loadAllData(int rows, int cols);
     std::vector<PicData> loadNOfEach(int n, int rows, int cols);
-    std::vector<PicData> getOneOfEach(int rows, int cols);
     std::tuple<std::vector<PicData>, std::vector<PicData>> getValidTrain(int rows, int cols);
     
 };

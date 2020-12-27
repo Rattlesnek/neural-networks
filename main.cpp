@@ -130,7 +130,7 @@ int main(int argc, char *argv[])
         // Weight update
         for (auto layer : layers)
         {
-            layer->updateWeights(iterCnt);
+            layer->updateWeights(iterCnt, 1);
         } 
 
         std::cout << "Error: " << error << std::endl;

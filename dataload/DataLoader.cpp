@@ -116,20 +116,6 @@ std::vector<PicData> DataLoader::loadNOfEach(int n, int rows, int cols)
     return pics;
 }
 
-std::vector<PicData> DataLoader::getOneOfEach(int rows, int cols)
-{
-    std::vector<PicData> pics;
-    for (int i = 0; i < 30; i++)
-    {
-        PicData x = loadPicture(rows,cols);
-        if (i == 0 || i == 3 || i == 29 || i == 4 || i == 5 || i == 7 || i == 2 || i == 21 || i == 9 || i == 1)
-        {
-            pics.emplace_back(x);
-        }
-    }
-    return pics;
-}
-
 std::tuple<std::vector<PicData>, std::vector<PicData>> DataLoader::getValidTrain(int rows, int cols)
 {
     std::vector<PicData> valid;

@@ -28,7 +28,7 @@ std::vector<std::shared_ptr<ILayer>> buildNetwork()
     std::cout << "Height: " << input->getOutputHeight() << std::endl;
     std::cout << "Width: " << input->getOutputWidth() << std::endl;
 
-    std::shared_ptr<ILayer> dense1 = std::make_shared<Dense>("Dense_layer_hidden1", input, 100);
+    std::shared_ptr<ILayer> dense1 = std::make_shared<Dense>("Dense_layer_hidden1", input, 120);
     std::cout << "Name: " << dense1->getName() << std::endl;
     std::cout << "Height: " << dense1->getOutputHeight() << std::endl;
     std::cout << "Width: " << dense1->getOutputWidth() << std::endl;
@@ -38,7 +38,7 @@ std::vector<std::shared_ptr<ILayer>> buildNetwork()
     std::cout << "Height: " << activation1->getOutputHeight() << std::endl;
     std::cout << "Width: " << activation1->getOutputWidth() << std::endl;
 
-    std::shared_ptr<ILayer> dense2 = std::make_shared<Dense>("Dense_layer_hidden2", activation1, 20);
+    std::shared_ptr<ILayer> dense2 = std::make_shared<Dense>("Dense_layer_hidden2", activation1, 50);
     std::cout << "Name: " << dense2->getName() << std::endl;
     std::cout << "Height: " << dense2->getOutputHeight() << std::endl;
     std::cout << "Width: " << dense2->getOutputWidth() << std::endl;
@@ -117,10 +117,11 @@ int main(int argc, char *argv[])
 
     // Change the leftmost number here for taking data out
 
-    //std::vector<PicData> dataPicValid = dl.loadNOfEach(600, 1, 784);
-    auto validTrainData = dl.getValidTrain(1, 784);
-    //std::random_shuffle(dataPic.begin(), dataPic.end(),[&](int i) {return std::rand() % i;} );
-    std::vector<PicData> dataPic = std::get<1>(validTrainData);
+    std::vector<PicData> data = dl.loadNOfEach(6000, 1, 784);
+    std::random_shuffle(data.begin(), data.end(),[&](int i) {return std::rand() % i;} );
+    //auto validTrainData = dl.getValidTrain(1, 784);
+    auto [validationData, trainData] = PreprocessingUtils::splitDataValidTrain(0.1, data);
+    //std::vector<PicData> dataPic = std::get<1>(validTrainData);
     // std::vector<Matrix> pics;
     // std::vector<Matrix> labels;
     // getNPics(10, dataPic, pics, labels);
@@ -155,9 +156,10 @@ int main(int argc, char *argv[])
     {
         auto startTraining = std::chrono::steady_clock::now();
         datasetIndex = 0;
-        const int numOfEpochs = 100;
+        const int numOfEpochs = 2;
         float epochError = 0.f;
-
+        int batchIndex = 0;
+        int epochCorrect = 0;
         if (epoch == numOfEpochs)
         {
             break;
@@ -169,12 +171,12 @@ int main(int argc, char *argv[])
         //std::cout << dataPic.size() << "<--- datapic size" << std::endl;
     
         // cycle for batches
-        while(datasetIndex < (int)dataPic.size())
+        while(datasetIndex < (int)trainData.size())
         {
             //std::cout << datasetIndex << "<--- batch index" << std::endl;
             const int batchSize = 100;
             float batchError = 0.f;
-
+            int batchCorrect = 0;
             //One Batch
             #pragma omp parallel for
             for (int picIndex = 0; picIndex < batchSize; picIndex++)
@@ -185,8 +187,8 @@ int main(int argc, char *argv[])
                 //     break;
                 // }
 
-                Matrix label = dataPic[datasetIndex + picIndex].getLabel();
-                Matrix input = dataPic[datasetIndex + picIndex].getMat();
+                Matrix label = trainData[datasetIndex + picIndex].getLabel();
+                Matrix input = trainData[datasetIndex + picIndex].getMat();
                 
                 // Forward
                 std::vector<Matrix> inputs = { input };
@@ -196,6 +198,10 @@ int main(int argc, char *argv[])
                 }
 
                 const auto& output = inputs.back();
+                if (correctPrediction(output, label))
+                {
+                    batchCorrect += 1;
+                }
                 auto errors = ErrorFunc::softmaxCrossentropyWithLogits(output, label);
                 #pragma omp critical
                 {
@@ -207,7 +213,7 @@ int main(int argc, char *argv[])
                 //std::cout << "Error " << errors(0, 0) << std::endl;              
 
                 auto grad = ErrorFunc::gradSoftmaxCrossentropyWithLogits(output, label);
-
+                
                 // Backward
                 for (int i = layers.size() - 1; i >= 0; --i)
                 {   
@@ -215,14 +221,17 @@ int main(int argc, char *argv[])
                 }
             }
             datasetIndex += batchSize;
-
+            batchIndex += 1;
+            auto help = (float)trainData.size()/(float)batchSize;
             for (auto layer : layers)
             {
-                layer->updateWeights(epoch);
+                layer->updateWeights(epoch , help * (0.002/help) - (float)batchIndex * (0.002/help) );
             }
 
             std::cout << batchError / (float)batchSize << ", " << std::flush;
+            std::cout << batchCorrect / (float)batchSize<< ", "<< std::flush;
             epochError += batchError;
+            epochCorrect += batchCorrect;
         }
         auto endTraining = std::chrono::steady_clock::now();
         std::cout << std::endl;
@@ -230,10 +239,48 @@ int main(int argc, char *argv[])
         << std::chrono::duration_cast<std::chrono::seconds>(endTraining - startTraining).count()
         << " sec" << std::endl;
 
-        float meanEpochError = epochError / (float)dataPic.size();
+        float meanEpochError = epochError / (float)trainData.size();
         std::cout << "Epoch error: " << meanEpochError << std::endl;
-    }
+        float accuracyEpoch = epochCorrect / (float)trainData.size();
+        std::cout << "Epoch accuracy: " << accuracyEpoch << std::endl;
+        std::cout <<"============================================" << std::endl << "Epoch no. " << epoch << " validation:" << std::endl;
+        float error = 0.f;
+        float correctPred = 0;
+        for (auto dpic : validationData)
+        {
+            Matrix label = dpic.getLabel();
+            Matrix output = dpic.getMat();
+            for (auto layer : layers)
+            {
+                output = layer->forward(output);
+            }
 
+            auto probability = ErrorFunc::softMax(output);
+            auto errors = ErrorFunc::softmaxCrossentropyWithLogits(output, label);
+            //auto probability = output;
+            for (int i = 0; i < errors.getRows(); i++)
+            {
+                error += errors(i, 0);
+            }
+            
+            //std::cout << "ErrorFunc::softmaxCrossentropyWithLogits(output, label)" << std::endl;
+            //std::cout << ErrorFunc::softmaxCrossentropyWithLogits(output, label);
+            //std::cout << "---------------\n";
+            //std::cout << "Input: " << dpic.getMat();
+            //std::cout << "Prediction: " << probability << std::endl;
+            //std::cout << "Label: " << label;
+            if (correctPrediction(probability, label))
+            {
+                correctPred += 1.f;
+            }
+            
+        }
+        std::cout << "Mean prediction error: " << error/(float) validationData.size() << std::endl;
+        std::cout << "Percentage correct: " ;
+        std::cout << (correctPred/((float)validationData.size()) )*100.f << "%" << std::endl;
+        std::cout << "End validation\n";
+        std::cout << "=====================================\n";
+    }
     auto totalEndTraining = std::chrono::steady_clock::now();
     std::cout << "Total elapsed time: " << std::chrono::duration_cast<std::chrono::seconds>(totalEndTraining - totalStartTraining).count()
     << " sec" << std::endl;
