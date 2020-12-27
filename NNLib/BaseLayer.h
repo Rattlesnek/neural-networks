@@ -29,7 +29,7 @@ public:
 
     virtual int getOutputWidth() const noexcept override;
 
-    virtual void updateWeights(int epoch, float batch) override;
+    virtual void updateWeights(float alpha) override;
 
 };
 

@@ -34,7 +34,7 @@ public:
 
     virtual mathlib::Matrix backward(const mathlib::Matrix& input, const mathlib::Matrix& gradient) override;  
 
-    virtual void updateWeights(int epoch, float batch) override;
+    virtual void updateWeights(float alpha) override;
 
     // Methods
 private:

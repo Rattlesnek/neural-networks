@@ -222,10 +222,9 @@ int main(int argc, char *argv[])
             }
             datasetIndex += batchSize;
             batchIndex += 1;
-            auto help = (float)trainData.size()/(float)batchSize;
             for (auto layer : layers)
             {
-                layer->updateWeights(epoch , help * (0.002/help) - (float)batchIndex * (0.002/help) );
+                layer->updateWeights(0.001);
             }
 
             std::cout << batchError / (float)batchSize << ", " << std::flush;

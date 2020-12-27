@@ -2,7 +2,6 @@
 
 #include "../mathlib/Matrix.h"
 
-
 namespace dataload
 {
 class PicData 

@@ -75,11 +75,8 @@ Matrix Dense::backward(const Matrix& input, const Matrix& gradient)
     return nextGradient.T();
 }
 
-void Dense::updateWeights(int epoch, float batch)
+void Dense::updateWeights(float alpha)
 {
-    // TEMPORARY -- update now
-    float alpha = 0.002f;
-    alpha = alpha * (40.f - (float)2*epoch)/20.f + batch ;
     auto multiplyByAlpha = [&](float x) -> float { return alpha * x; };
     totalWeightUpdate.applyFunc(multiplyByAlpha);
     weights = weights - totalWeightUpdate;
@@ -88,7 +85,6 @@ void Dense::updateWeights(int epoch, float batch)
 
     totalWeightUpdate.setDimensions(previousLayer->getOutputWidth(), this->getOutputWidth());
     totalBiasesUpdate.setDimensions(1, this->getOutputWidth());
-    // TEMPORARY
 }
 
 void Dense::initializeWeightsAndBiases()

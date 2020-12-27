@@ -7,7 +7,7 @@ using namespace dataload;
 using namespace mathlib;
 void PicData::createOneHotVector(int i)
 {
-    if (i < 0 || i > 9 )
+    if (i < 0 || i > 9)
     {
         throw std::runtime_error("Wrong label number!");
     }

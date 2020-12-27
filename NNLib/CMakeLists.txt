@@ -6,8 +6,10 @@ set(CMAKE_CXX_STANDARD 17)
 find_package(OpenMP)
 
 include_directories(${CMAKE_SOURCE_DIR}/mathlib)
+include_directories(${CMAKE_SOURCE_DIR}/dataload)
 
 link_directories(${CMAKE_BINARY_DIR}/mathlib)
+link_directories(${CMAKE_BINARY_DIR}/dataload)
 
 file(GLOB_RECURSE CPP_FILES "*.cpp")
 file(GLOB_RECURSE H_FILES "*.h")
@@ -17,8 +19,8 @@ add_library(${PROJECT_NAME} SHARED
 	${CPP_FILES}
 )
 
-add_dependencies(${PROJECT_NAME} mathlib)
+add_dependencies(${PROJECT_NAME} mathlib dataload)
 
 target_compile_options(${PROJECT_NAME} PRIVATE -Wall ${OpenMP_CXX_FLAGS})
 
-target_link_libraries(${PROJECT_NAME} mathlib ${OpenMP_CXX_FLAGS})
+target_link_libraries(${PROJECT_NAME} mathlib dataload ${OpenMP_CXX_FLAGS})
