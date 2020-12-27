@@ -6,23 +6,6 @@
 
 using namespace mathlib;
 
-float ErrorFunc::categoricalCrossentropy(const Matrix& predictions, const Matrix& labels)
-{
-    // categorical crossentropy = - sum(labels * log(ouputs))
-    std::vector<float> multLabels;
-    for (int i = 0; i < labels.getRows(); i++)
-    {   
-        for (int j = 0; j < labels.getCols(); j++)
-        {
-            multLabels.emplace_back(labels(i, j) * std::log(predictions(i, j)));
-        }
-    }
-    return - std::accumulate(multLabels.begin(), multLabels.end(), 0.f);  
-}
-float ErrorFunc::meanSquareError(const Matrix& predictions, const Matrix& labels)
-{
-    return 0.5;
-}
 
 Matrix ErrorFunc::softMax(const Matrix& input)
 {
@@ -66,7 +49,7 @@ Matrix ErrorFunc::softMax(const Matrix& input)
 }
 
 // jeden column 
-Matrix ErrorFunc::softmaxCrossentropyWithLogits(const Matrix& input, const Matrix& label)
+Matrix ErrorFunc::softmaxCrossentropyWithLogits(const Matrix& input, const std::vector<int>& label)
 {
     Matrix input_copy = input;
     Matrix output(input.getRows(), 1);
@@ -94,18 +77,14 @@ Matrix ErrorFunc::softmaxCrossentropyWithLogits(const Matrix& input, const Matri
     }
     for (int row = 0; row < input.getRows(); row++ )
     {
-        for (int col = 0; col < input.getCols(); col++)
-        if (label(row, col) == 1)
-        {
-            output(row, 0) -= input_copy(row, col);
-        }
+            output(row, 0) -= input_copy(row, label[row]);
     }
     
     return output;
 }
 
 //matica normalna size == input.size()
-Matrix ErrorFunc::gradSoftmaxCrossentropyWithLogits(const Matrix& input, const Matrix& label)
+Matrix ErrorFunc::gradSoftmaxCrossentropyWithLogits(const Matrix& input, const std::vector<int>& label)
 {
     Matrix softmax = softMax(input);
     std::vector<int> cols;
@@ -113,11 +92,7 @@ Matrix ErrorFunc::gradSoftmaxCrossentropyWithLogits(const Matrix& input, const M
     int counter = 0;
     for (int row = 0; row < input.getRows(); row++ )
     {
-        for (int col = 0; col < input.getCols(); col++)
-        if (label(row, col) == 1)
-        {
-            softmax(row, col) -= 1;
-        }
+        softmax(row, label[row]) -= 1;
     }
     
     return softmax;

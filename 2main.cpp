@@ -68,21 +68,12 @@ std::vector<std::shared_ptr<ILayer>> buildNetwork()
     return layers;
 }
 
-void getNPics(int n, const std::vector<PicData>& data,
-                             std::vector<Matrix>& pics, std::vector<Matrix>& labels)
-{
-    for (int i = 0; i < n; i++)
-    {
-        pics.emplace_back(data[i].getMat());
-        labels.emplace_back(data[i].getLabel());
-    }
-}
 
-bool correctPrediction(const Matrix& pred, const Matrix label)
+
+bool correctPrediction(const Matrix& pred, const std::vector<int> label)
 {
     float maxPred = -FLT_MAX;
     int maxIndex = 0;
-    int labelIndex = 0;
     for (int i = 0; i < 10; i++)
     {
         if (pred(0, i) > maxPred)
@@ -90,13 +81,8 @@ bool correctPrediction(const Matrix& pred, const Matrix label)
             maxPred = pred(0, i);
             maxIndex = i;
         }
-        if (label(0, i) == 1)
-        {
-            labelIndex = i;
-        }
-
     }
-    if (maxIndex == labelIndex)
+    if (maxIndex == label[0])
     {
         return true;
     }
@@ -117,7 +103,7 @@ int main(int argc, char *argv[])
 
     // Change the leftmost number here for taking data out
 
-    std::vector<PicData> data = dl.loadNOfEach(6000, 1, 784);
+    std::vector<PicData> data = dl.loadNOfEach(300, 1, 784);
     std::random_shuffle(data.begin(), data.end(),[&](int i) {return std::rand() % i;} );
     //auto validTrainData = dl.getValidTrain(1, 784);
     auto [validationData, trainData] = PreprocessingUtils::splitDataValidTrain(0.1, data);
@@ -134,7 +120,7 @@ int main(int argc, char *argv[])
         
     //     // std::cout << pics[i] << std::endl;
     //     std::cout << "this is label: " << std::endl;
-    //     std::cout << dataPic[i].getLabel() << std::endl;
+    //     std::cout << dataPic[i].getLabels() << std::endl;
         
     // }
 
@@ -158,7 +144,7 @@ int main(int argc, char *argv[])
         datasetIndex = 0;
         const int numOfEpochs = 2;
         float epochError = 0.f;
-        int batchIndex = 0;
+        int PicDataIndex = 0;
         int epochCorrect = 0;
         if (epoch == numOfEpochs)
         {
@@ -170,16 +156,16 @@ int main(int argc, char *argv[])
 
         //std::cout << dataPic.size() << "<--- datapic size" << std::endl;
     
-        // cycle for batches
+        // cycle for PicDataes
         while(datasetIndex < (int)trainData.size())
         {
-            //std::cout << datasetIndex << "<--- batch index" << std::endl;
-            const int batchSize = 100;
-            float batchError = 0.f;
-            int batchCorrect = 0;
-            //One Batch
+            //std::cout << datasetIndex << "<--- PicData index" << std::endl;
+            const int PicDataSize = 100;
+            float PicDataError = 0.f;
+            int PicDataCorrect = 0;
+            //One PicData
             #pragma omp parallel for
-            for (int picIndex = 0; picIndex < batchSize; picIndex++)
+            for (int picIndex = 0; picIndex < PicDataSize; picIndex++)
             {
                 // TODO
                 // if (datasetIndex + picIndex >= dataPic.size())
@@ -187,7 +173,7 @@ int main(int argc, char *argv[])
                 //     break;
                 // }
 
-                Matrix label = trainData[datasetIndex + picIndex].getLabel();
+                std::vector<int> label = trainData[datasetIndex + picIndex].getLabels();
                 Matrix input = trainData[datasetIndex + picIndex].getMat();
                 
                 // Forward
@@ -200,14 +186,14 @@ int main(int argc, char *argv[])
                 const auto& output = inputs.back();
                 if (correctPrediction(output, label))
                 {
-                    batchCorrect += 1;
+                    PicDataCorrect += 1;
                 }
                 auto errors = ErrorFunc::softmaxCrossentropyWithLogits(output, label);
                 #pragma omp critical
                 {
                     for (int i = 0; i < errors.getRows(); i++)
                     {
-                        batchError += errors(i, 0);
+                        PicDataError += errors(i, 0);
                     }
                 }
                 //std::cout << "Error " << errors(0, 0) << std::endl;              
@@ -220,18 +206,18 @@ int main(int argc, char *argv[])
                     grad = layers[i]->backward(inputs[i], grad);
                 }
             }
-            datasetIndex += batchSize;
-            batchIndex += 1;
-            auto help = (float)trainData.size()/(float)batchSize;
+            datasetIndex += PicDataSize;
+            PicDataIndex += 1;
+            auto help = (float)trainData.size()/(float)PicDataSize;
             for (auto layer : layers)
             {
-                layer->updateWeights(epoch , help * (0.002/help) - (float)batchIndex * (0.002/help) );
+                layer->updateWeights(epoch , help * (0.002/help) - (float)PicDataIndex * (0.002/help) );
             }
 
-            std::cout << batchError / (float)batchSize << ", " << std::flush;
-            std::cout << batchCorrect / (float)batchSize<< ", "<< std::flush;
-            epochError += batchError;
-            epochCorrect += batchCorrect;
+            std::cout << PicDataError / (float)PicDataSize << ", " << std::flush;
+            std::cout << PicDataCorrect / (float)PicDataSize<< ", "<< std::flush;
+            epochError += PicDataError;
+            epochCorrect += PicDataCorrect;
         }
         auto endTraining = std::chrono::steady_clock::now();
         std::cout << std::endl;
@@ -248,7 +234,7 @@ int main(int argc, char *argv[])
         float correctPred = 0;
         for (auto dpic : validationData)
         {
-            Matrix label = dpic.getLabel();
+            std::vector<int> label = dpic.getLabels();
             Matrix output = dpic.getMat();
             for (auto layer : layers)
             {
@@ -295,7 +281,7 @@ int main(int argc, char *argv[])
     // float correctPred = 0;
     // for (auto dpic : dataPic)
     // {
-    //     Matrix label = dpic.getLabel();
+    //     Matrix label = dpic.getLabels();
     //     Matrix output = dpic.getMat();
     //     for (auto layer : layers)
     //     {

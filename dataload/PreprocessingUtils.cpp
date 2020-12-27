@@ -20,9 +20,9 @@ std::tuple<std::vector<PicData>, std::vector<PicData>> PreprocessingUtils::split
     for (int i = 0; i < data.size(); i++)
     {
         auto pic = data[i];
-        if (counts[pic.getIndex()] < limitEachClass)
+        if (counts[pic.getLabels()[0]] < limitEachClass)
         {
-            counts[pic.getIndex()] += 1;
+            counts[pic.getLabels()[0]] += 1;
             valid.emplace_back(pic);
         }
         else

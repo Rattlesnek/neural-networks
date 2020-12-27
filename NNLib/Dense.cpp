@@ -9,9 +9,9 @@ using namespace mathlib::activation;
 Dense::Dense(std::string name,
     std::shared_ptr<ILayer> previousLayer,
     int numOfNeurons, 
-    int batchSize)
+    int PicDataSize)
     :
-    BaseLayer(std::move(name), batchSize, numOfNeurons), 
+    BaseLayer(std::move(name), PicDataSize, numOfNeurons), 
     previousLayer(previousLayer)
 {
     // Dummy constructor
@@ -20,7 +20,7 @@ Dense::Dense(std::string name,
     {
         throw LayerException(this->name + " - Constructor - nullptr passed.");
     }
-    if (previousLayer->getOutputHeight() != batchSize)
+    if (previousLayer->getOutputHeight() != PicDataSize)
     {
         throw LayerException(this->name + " - Constructor - could not be connected to previous layer. Size mismatch.");
     }
@@ -75,11 +75,11 @@ Matrix Dense::backward(const Matrix& input, const Matrix& gradient)
     return nextGradient.T();
 }
 
-void Dense::updateWeights(int epoch, float batch)
+void Dense::updateWeights(int epoch, float PicData)
 {
     // TEMPORARY -- update now
     float alpha = 0.002f;
-    alpha = alpha * (40.f - (float)2*epoch)/20.f + batch ;
+    alpha = alpha * (40.f - (float)2*epoch)/20.f + PicData ;
     auto multiplyByAlpha = [&](float x) -> float { return alpha * x; };
     totalWeightUpdate.applyFunc(multiplyByAlpha);
     weights = weights - totalWeightUpdate;

@@ -60,11 +60,11 @@ TEST(XORTest, XOR_2D_Integration)
 
     // Dataset
     // tuple(XOR-input, one-hot-vector)
-    std::vector<std::tuple<Matrix, Matrix>> dataXOR = {
-        std::tuple<Matrix, Matrix>(Matrix(1, 2, {0, 0}), Matrix(1, 2, {0, 1})),
-        std::tuple<Matrix, Matrix>(Matrix(1, 2, {0, 1}), Matrix(1, 2, {1, 0})),
-        std::tuple<Matrix, Matrix>(Matrix(1, 2, {1, 0}), Matrix(1, 2, {1, 0})),
-        std::tuple<Matrix, Matrix>(Matrix(1, 2, {1, 1}), Matrix(1, 2, {0, 1}))
+    std::vector<std::tuple<Matrix, std::vector<int>>> dataXOR = {
+        std::tuple<Matrix, std::vector<int>>(Matrix(1, 2, {0, 0}), { 1}),
+        std::tuple<Matrix, std::vector<int>>(Matrix(1, 2, {0, 1}), { 0}),
+        std::tuple<Matrix, std::vector<int>>(Matrix(1, 2, {1, 0}), { 0}),
+        std::tuple<Matrix, std::vector<int>>(Matrix(1, 2, {1, 1}), { 1})
     };
 
     // Create vector of layers
@@ -142,7 +142,7 @@ TEST(XORTest, XOR_2D_Integration)
         std::cout << "--------------------------\n";
         std::cout << "Input: " << input;
         std::cout << "Prediction: " << probability;
-        std::cout << "Label: " << label;
+        std::cout << "Label: " << label[0];
     }
 
     std::cout << "Prediction error " << error << std::endl;

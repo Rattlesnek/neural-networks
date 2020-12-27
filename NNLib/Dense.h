@@ -25,7 +25,7 @@ public:
     Dense(std::string name,
         std::shared_ptr<ILayer> previousLayer,
         int numOfNeurons,       
-        int batchSize = 1);
+        int PicDataSize = 1);
 
     // Methods
 public:
@@ -34,7 +34,7 @@ public:
 
     virtual mathlib::Matrix backward(const mathlib::Matrix& input, const mathlib::Matrix& gradient) override;  
 
-    virtual void updateWeights(int epoch, float batch) override;
+    virtual void updateWeights(int epoch, float PicData) override;
 
     // Methods
 private:

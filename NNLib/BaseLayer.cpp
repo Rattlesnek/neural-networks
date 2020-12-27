@@ -30,7 +30,7 @@ int BaseLayer::getOutputWidth() const noexcept
     return outputWidth;
 }
 
-void BaseLayer::updateWeights(int epoch, float batch)
+void BaseLayer::updateWeights(int epoch, float PicData)
 {
     // No Operation
 }
