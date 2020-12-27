@@ -78,7 +78,7 @@ Matrix Dense::backward(const Matrix& input, const Matrix& gradient)
 void Dense::updateWeights(int it)
 {
     // TEMPORARY -- update now
-    const float alpha = 0.1f * 1.f/(1.f + (it / 100));
+    const float alpha = 0.001f; // * 1.f/(1.f + (it / 100));
     auto multiplyByAlpha = [&](float x) -> float { return alpha * x; };
     totalWeightUpdate.applyFunc(multiplyByAlpha);
     weights = weights - totalWeightUpdate;

@@ -29,7 +29,6 @@ public:
 
     virtual int getOutputWidth() const noexcept override;
 
-
     virtual void updateWeights(int it) override;
 
 };
