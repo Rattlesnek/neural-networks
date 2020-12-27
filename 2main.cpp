@@ -116,11 +116,11 @@ int main(int argc, char *argv[])
                                "../data/fashion_mnist_train_labels.csv");
 
     // Change the leftmost number here for taking data out
-    std::vector<PicData> dataPic = dl.loadNOfEach(600, 1, 784);
-    // std::vector<PicData> dataPic = dl.loadAllData(1, 784);
-    
-    std::random_shuffle(dataPic.begin(), dataPic.end(),[&](int i) {return std::rand() % i;} );
 
+    //std::vector<PicData> dataPicValid = dl.loadNOfEach(600, 1, 784);
+    auto validTrainData = dl.getValidTrain(1, 784);
+    //std::random_shuffle(dataPic.begin(), dataPic.end(),[&](int i) {return std::rand() % i;} );
+    std::vector<PicData> dataPic = std::get<1>(validTrainData);
     // std::vector<Matrix> pics;
     // std::vector<Matrix> labels;
     // getNPics(10, dataPic, pics, labels);
