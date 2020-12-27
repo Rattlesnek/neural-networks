@@ -26,7 +26,7 @@ TEST(DataloadTest, DataLabelBasicTest)
 {
     DataLoader dl("../dataload.tests/test_vector.csv", "../dataload.tests/test_labels.csv");
     std::vector<PicData> pd = dl.DataLoader::loadAllData(28,28);
-    EXPECT_EQ(pd[0].getLabel()[2], 1.0f);
-    EXPECT_EQ(pd[1].getLabel()[9], 1.0f);
-    EXPECT_EQ(pd[2].getLabel()[6], 1.0f);
+    EXPECT_EQ(pd[0].getLabels()[2], 1.0f);
+    EXPECT_EQ(pd[1].getLabels()[9], 1.0f);
+    EXPECT_EQ(pd[2].getLabels()[6], 1.0f);
 }

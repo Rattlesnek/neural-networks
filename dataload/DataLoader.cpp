@@ -36,14 +36,14 @@ PicData DataLoader::loadPicture(int rows, int cols)
     
     std::stringstream ssline(line);
     std::string val;
-    int oneHotIndex;
+    std::vector<int> oneHotIndex(1);
     while (std::getline(ssline, val, ','))
     {
         vec.emplace_back(std::stof(val));
     }
     if (std::getline(labels, label))
     {
-        oneHotIndex = std::stoi(label);
+        oneHotIndex[0] = std::stoi(label);
     }
     else
     {
@@ -94,10 +94,10 @@ std::vector<PicData> DataLoader::loadNOfEach(int n, int rows, int cols)
         try
         {
             auto pic = loadPicture(rows, cols);
-            if (counts[pic.getIndex()] < n)
+            if (counts[pic.getLabels()[0]] < n)
             {
                 pics.emplace_back(pic);
-                counts[pic.getIndex()] += 1;
+                counts[pic.getLabels()[0]] += 1;
             }
         }
         catch(const EOFException& e)
@@ -135,10 +135,10 @@ std::tuple<std::vector<PicData>, std::vector<PicData>> DataLoader::getValidTrain
         try
         {
             auto pic = loadPicture(rows, cols);
-            if (counts[pic.getIndex()] < 600)
+            if (counts[pic.getLabels()[0]] < 600)
             {
                 valid.emplace_back(pic);
-                counts[pic.getIndex()] += 1;
+                counts[pic.getLabels()[0]] += 1;
             }
             else
             {

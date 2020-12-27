@@ -46,6 +46,9 @@ void Network::train(const int numOfEpochs, const int batchSize, const std::vecto
             std::vector<PicData> batch(trainData.begin() + datasetIndex, trainData.begin() + datasetIndex + batchSize);
 
             auto [batchAccuracy, meanBatchLoss] = trainOnBatch(batch);
+
+            std::cout << batchAccuracy << ", " << std::flush;
+
             totalBatchAccuracy += batchAccuracy;
             totalMeanBatchLoss += meanBatchLoss;
             datasetIndex += batchSize;
@@ -76,7 +79,7 @@ std::tuple<float, float> Network::trainOnBatch(const std::vector<PicData>& batch
     for (const auto& pic : batch)
     {   
         auto input = pic.getMat();
-        auto label = pic.getLabel();
+        auto label = pic.getLabels();
         std::vector<Matrix> inputs = { input };
         
         // Forward
@@ -127,11 +130,10 @@ std::tuple<float, float> Network::trainOnBatch(const std::vector<PicData>& batch
     return std::make_tuple(batchAccuracy, meanBatchLoss);
 }
 
-bool Network::correctPrediction(const Matrix& pred, const Matrix& label)
+bool Network::correctPrediction(const Matrix& pred, const std::vector<int>& labels)
 {
     float maxPred = -FLT_MAX;
     int maxIndex = 0;
-    int labelIndex = 0;
     for (int i = 0; i < 10; i++)
     {
         if (pred(0, i) > maxPred)
@@ -139,16 +141,10 @@ bool Network::correctPrediction(const Matrix& pred, const Matrix& label)
             maxPred = pred(0, i);
             maxIndex = i;
         }
-        if (label(0, i) == 1)
-        {
-            labelIndex = i;
-        }
-
     }
-    if (maxIndex == labelIndex)
+    if (maxIndex == labels[0])
     {
         return true;
     }
     return false;
 }
-

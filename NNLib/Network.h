@@ -26,7 +26,7 @@ public:
     // void predict();
 
 private:
-    bool correctPrediction(const mathlib::Matrix& pred, const mathlib::Matrix& label);
+    bool correctPrediction(const mathlib::Matrix& pred, const std::vector<int>& labels);
 
 };
 

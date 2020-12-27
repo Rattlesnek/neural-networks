@@ -25,7 +25,7 @@ public:
     Dense(std::string name,
         std::shared_ptr<ILayer> previousLayer,
         int numOfNeurons,       
-        int batchSize = 1);
+        int PicDataSize = 1);
 
     // Methods
 public:
