@@ -73,7 +73,9 @@ int main(int argc, char *argv[])
     }
 
     auto layers = buildNetwork();
-    Network network(layers);
+
+    //we declare learning rate here:
+    Network network(layers, 0.005);
 
     if (!executeTraining)
     {
@@ -81,7 +83,7 @@ int main(int argc, char *argv[])
     }   
 
     // set number of threads
-    omp_set_num_threads(4);
+    omp_set_num_threads(8);
 
     DataLoader dl = DataLoader("../data/fashion_mnist_train_vectors.csv",
                                "../data/fashion_mnist_train_labels.csv");
@@ -92,7 +94,7 @@ int main(int argc, char *argv[])
 
     auto [validationData, trainData] = PreprocessingUtils::splitDataValidTrain(0.1, data);
 
-    network.train(2, 100, trainData);
+    network.train(5, 100, trainData, validationData);
     
     return 0;
 }

@@ -1,22 +1,30 @@
 
 #include "TrainUtils.h"
-
 using namespace nnlib;
 
-static float powerSchedulingLR(int LR, int epochSteps, int currSteps)
+float TrainUtils::powerSchedulingLR(float LR, int epochSteps, int currSteps)
 {
-    return 0.001f/(1 + (float)currSteps/ (float) epochSteps);
+    return LR/(1 + ((float)currSteps/ (float) epochSteps));
 }
-static float exponentialScheduling(int LR, int epochSteps, int currSteps)
+float TrainUtils::exponentialScheduling(float LR, int epochSteps, int currSteps)
 {
-    return 0.001f* std::pow(0.1f, (float)currSteps/(float) epochSteps);
+    return LR* std::pow(0.1f, (float)currSteps/(float) epochSteps);
 }
-static float piecewiseConstantScheduling(int LR, int epochSteps, int currSteps)
+float TrainUtils::piecewiseConstantScheduling(float LR, int epochSteps, int currSteps)
 {
     auto multiplier = ((epochSteps / 100)/ currSteps);
-    return 0.001f;
+    return LR;
 }
-static float oneCycleScheduling(int LR, int epochSteps, int currSteps)
+float TrainUtils::oneCycleScheduling(float LR, int maxSteps, int currSteps)
 {
-    return 0.001f;
+    if (maxSteps / 2 > currSteps)
+    {
+        LR = LR * (1.f + 100.f/maxSteps);
+    }
+    else
+    {
+        LR = LR * (1.f - 100.f/maxSteps);
+    }
+    std::cout << LR << "<- learning rate";
+    return LR;
 }
