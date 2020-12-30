@@ -107,16 +107,6 @@ float Matrix::sum() const
     return std::accumulate(mat.begin(), mat.end(), 0.0);
 }
 
-std::vector<float>::iterator Matrix::begin()
-{
-    return mat.begin();
-}
-
-std::vector<float>::iterator Matrix::end()
-{
-    return mat.end();
-}
-
 float& Matrix::operator()(int row, int col)
 {
     return mat[row * cols + col];
@@ -125,16 +115,6 @@ float& Matrix::operator()(int row, int col)
 float Matrix::operator()(int row, int col) const
 {
     return mat[row * cols + col];
-}
-
-float& Matrix::operator[](int i)
-{
-    return mat[i];
-}
-
-float Matrix::operator[](int i) const
-{
-    return mat[i];
 }
 
 Matrix Matrix::operator+(const Matrix& m2) const
@@ -183,20 +163,19 @@ Matrix Matrix::operator*(const Matrix& m2) const
         throw MatrixException("Wrong dimensions, can't multiply!");
     }
     
-    Matrix m = Matrix(m1.rows, m2.cols);
-    for (int r = 0; r < m.rows; r++)
+    Matrix mat = Matrix(m1.rows, m2.cols);
+    for (int row1 = 0; row1 < m1.rows; row1++)
     {
-        for (int c = 0; c < m.cols; c++)
+        for (int col1 = 0; col1 < m1.cols; col1++)
         {
-            for (int i = 0; i < m1.cols; i++)
+            for (int col2 = 0; col2 < m2.cols; col2++)
             {
-                m(r,c) += m1(r,i) * m2(i,c);
+                mat(row1, col2) += m1(row1, col1) * m2(col1, col2);
             }
         }
     }
-    return m;
+    return mat;
 }
-
 
 Matrix Matrix::arrayMult(const Matrix& m1, const Matrix& m2)
 {
@@ -229,24 +208,3 @@ std::ostream& mathlib::operator<<(std::ostream& stream, const Matrix& m)
     stream << "]" << std::endl;
     return stream;
 }
-
-bool operator ==(const Matrix& m1,const Matrix& m2)
-{
-    
-    if (m1.getRows() != m2.getRows() || m1.getCols() != m2.getCols())
-    {
-        return false;
-    }
-    for (int r = 0; r < m1.getRows(); r++)
-    {
-        for (int c = 0; c < m1.getCols(); c++)
-        {
-            if (m1(r,c) != m2(r,c))
-            {
-                return false;
-            }
-        }
-    }
-    return true;
-}
-
