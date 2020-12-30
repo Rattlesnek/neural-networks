@@ -29,7 +29,7 @@ target_include_directories(main PUBLIC
     "${PROJECT_SOURCE_DIR}/dataload"
 )
 
-# Add second main
+#Add second main
 add_executable(2main 2main.cpp)
 # Compile options
 target_compile_options(2main PRIVATE -Wall ${OpenMP_CXX_FLAGS})

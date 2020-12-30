@@ -20,6 +20,9 @@ private:
     mathlib::Matrix totalWeightUpdate; // matrix
     mathlib::Matrix totalBiasesUpdate; // column vector
 
+    mathlib::Matrix previousWeightUpdate;
+    mathlib::Matrix previousBiasesUpdate;
+
     // Constructors / destructor
 public:
     Dense(std::string name,
@@ -34,7 +37,7 @@ public:
 
     virtual mathlib::Matrix backward(const mathlib::Matrix& input, const mathlib::Matrix& gradient) override;  
 
-    virtual void updateWeights(float alpha) override;
+    virtual void updateWeights(float alpha, float momentumCoeficient) override;
 
     // Methods
 private:

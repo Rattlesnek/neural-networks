@@ -30,7 +30,7 @@ int BaseLayer::getOutputWidth() const noexcept
     return outputWidth;
 }
 
-void BaseLayer::updateWeights(float alpha)
+void BaseLayer::updateWeights(float alpha, float momentumCoeficient)
 {
     // No Operation
 }

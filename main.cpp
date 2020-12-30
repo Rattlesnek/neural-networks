@@ -20,34 +20,17 @@ std::vector<std::shared_ptr<ILayer>> buildNetwork()
     std::cout << "Network architecture\n";
 
     std::shared_ptr<ILayer> input = std::make_shared<Input>("Input_layer", 1, 28*28);
-    std::cout << "Name: " << input->getName() << std::endl;
-    std::cout << "Height: " << input->getOutputHeight() << std::endl;
-    std::cout << "Width: " << input->getOutputWidth() << std::endl;
-
+    
     std::shared_ptr<ILayer> dense1 = std::make_shared<Dense>("Dense_layer_hidden1", input, 120);
-    std::cout << "Name: " << dense1->getName() << std::endl;
-    std::cout << "Height: " << dense1->getOutputHeight() << std::endl;
-    std::cout << "Width: " << dense1->getOutputWidth() << std::endl;
-
     std::shared_ptr<ILayer> activation1 = std::make_shared<Activation>("Activation_hidden1", dense1, std::make_shared<ReLU>());
-    std::cout << "Name: " << activation1->getName() << std::endl;
-    std::cout << "Height: " << activation1->getOutputHeight() << std::endl;
-    std::cout << "Width: " << activation1->getOutputWidth() << std::endl;
 
     std::shared_ptr<ILayer> dense2 = std::make_shared<Dense>("Dense_layer_hidden2", activation1, 50);
-    std::cout << "Name: " << dense2->getName() << std::endl;
-    std::cout << "Height: " << dense2->getOutputHeight() << std::endl;
-    std::cout << "Width: " << dense2->getOutputWidth() << std::endl;
-
     std::shared_ptr<ILayer> activation2 = std::make_shared<Activation>("Activation_hidden2", dense2, std::make_shared<ReLU>());
-    std::cout << "Name: " << activation2->getName() << std::endl;
-    std::cout << "Height: " << activation2->getOutputHeight() << std::endl;
-    std::cout << "Width: " << activation2->getOutputWidth() << std::endl;
 
-    std::shared_ptr<ILayer> dense3 = std::make_shared<Dense>("Dense_layer_output", activation2, 10);
-    std::cout << "Name: " << dense3->getName() << std::endl;
-    std::cout << "Height: " << dense3->getOutputHeight() << std::endl;
-    std::cout << "Width: " << dense3->getOutputWidth() << std::endl;
+    std::shared_ptr<ILayer> dense3 = std::make_shared<Dense>("Dense_layer_hidden3", activation2, 20);
+    std::shared_ptr<ILayer> activation3 = std::make_shared<Activation>("Activation_hidden3", dense3, std::make_shared<ReLU>());
+
+    std::shared_ptr<ILayer> dense4 = std::make_shared<Dense>("Dense_layer_output", activation3, 10);
 
     std::vector<std::shared_ptr<ILayer>> layers = {
         input,
@@ -55,8 +38,17 @@ std::vector<std::shared_ptr<ILayer>> buildNetwork()
         activation1, 
         dense2,
         activation2,
-        dense3
+        dense3,
+        activation3,
+        dense4
     };
+
+    for (auto layer : layers)
+    {
+        std::cout << "Name: " << layer->getName() << std::endl;
+        std::cout << "Height: " << layer->getOutputHeight() << std::endl;
+        std::cout << "Width: " << layer->getOutputWidth() << std::endl;
+    }
 
     std::cout << "End network architecture\n";
     std::cout << "======================================\n";
@@ -73,9 +65,7 @@ int main(int argc, char *argv[])
     }
 
     auto layers = buildNetwork();
-
-    //we declare learning rate here:
-    Network network(layers, 0.005);
+    Network network(layers);
 
     if (!executeTraining)
     {
@@ -85,16 +75,26 @@ int main(int argc, char *argv[])
     // set number of threads
     omp_set_num_threads(8);
 
-    DataLoader dl = DataLoader("../data/fashion_mnist_train_vectors.csv",
-                               "../data/fashion_mnist_train_labels.csv");
+    DataLoader trainDataLoader = DataLoader("../data/fashion_mnist_train_vectors.csv",
+                                            "../data/fashion_mnist_train_labels.csv");
+
+    DataLoader testDataLoader = DataLoader("../data/fashion_mnist_test_vectors.csv",
+                                           "../data/fashion_mnist_test_labels.csv");
 
     // Change the leftmost number here for taking data out
-    std::vector<PicData> data = dl.loadNOfEach(300, 1, 784);
-    std::random_shuffle(data.begin(), data.end(),[&](int i) {return std::rand() % i;} );
+    auto trainData = trainDataLoader.loadNOfEach(600, 1, 784);
+    
+    //auto trainData = trainDataLoader.loadAllData(1, 784);
+    //auto testData = testDataLoader.loadAllData(1, 784);
 
-    auto [validationData, trainData] = PreprocessingUtils::splitDataValidTrain(0.1, data);
+    std::random_shuffle(trainData.begin(), trainData.end(),[&](int i) {return std::rand() % i;} );
 
-    network.train(5, 100, trainData, validationData);
+    auto [validationData, trainDataSplit] = PreprocessingUtils::splitDataValidTrain(0.1, trainData);
+
+    float learningRate = 0.001;
+    float momentumCoeficient = 0.9;
+
+    network.train(2, 100, learningRate, momentumCoeficient, trainDataSplit, validationData);
     
     return 0;
 }

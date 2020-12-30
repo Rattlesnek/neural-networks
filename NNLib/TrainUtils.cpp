@@ -1,30 +1,32 @@
-
 #include "TrainUtils.h"
+
 using namespace nnlib;
 
-float TrainUtils::powerSchedulingLR(float LR, int epochSteps, int currSteps)
+float TrainUtils::powerSchedulingLR(float LR, int numOfBatchesInEpoch, int currentBatch)
 {
-    return LR/(1 + ((float)currSteps/ (float) epochSteps));
+    return LR / (1 + ((float)currentBatch / (float)numOfBatchesInEpoch));
 }
-float TrainUtils::exponentialScheduling(float LR, int epochSteps, int currSteps)
+
+float TrainUtils::exponentialScheduling(float LR, int numOfBatchesInEpoch, int currentBatch)
 {
-    return LR* std::pow(0.1f, (float)currSteps/(float) epochSteps);
+    return LR * std::pow(0.1f, (float)currentBatch /(float) numOfBatchesInEpoch);
 }
-float TrainUtils::piecewiseConstantScheduling(float LR, int epochSteps, int currSteps)
+
+float TrainUtils::piecewiseConstantScheduling(float LR, int numOfBatchesInEpoch, int currentBatch)
 {
-    auto multiplier = ((epochSteps / 100)/ currSteps);
+    auto multiplier = ((numOfBatchesInEpoch / 100) / currentBatch);
     return LR;
 }
-float TrainUtils::oneCycleScheduling(float LR, int maxSteps, int currSteps)
+
+float TrainUtils::oneCycleScheduling(float LR, int maxBatches, int currentBatch)
 {
-    if (maxSteps / 2 > currSteps)
+    int tmp = maxBatches / 4;
+    if (currentBatch < tmp)
     {
-        LR = LR * (1.f + 100.f/maxSteps);
+        return LR;
     }
     else
-    {
-        LR = LR * (1.f - 100.f/maxSteps);
+    {   
+        return LR * (1.f - ((float)(currentBatch - tmp) / (float)(maxBatches - tmp + 1)));
     }
-    std::cout << LR << "<- learning rate";
-    return LR;
 }

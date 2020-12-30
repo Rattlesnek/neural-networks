@@ -30,9 +30,11 @@ Dense::Dense(std::string name,
     // this matrix of weigths will be multiplied with the input vector from the left like this: weights * input -- hence the size of the matrix
     weights.setDimensions(previousLayer->getOutputWidth(), this->getOutputWidth());
     totalWeightUpdate.setDimensions(previousLayer->getOutputWidth(), this->getOutputWidth());
+    previousWeightUpdate.setDimensions(previousLayer->getOutputWidth(), this->getOutputWidth());
 
     biases.setDimensions(1, this->getOutputWidth());
     totalBiasesUpdate.setDimensions(1, this->getOutputWidth());
+    previousBiasesUpdate.setDimensions(1, this->getOutputWidth());
 
     initializeWeightsAndBiases();
 }
@@ -75,14 +77,29 @@ Matrix Dense::backward(const Matrix& input, const Matrix& gradient)
     return nextGradient.T();
 }
 
-void Dense::updateWeights(float alpha)
+void Dense::updateWeights(float alpha, float momentumCoeficient)
 {
+    // Apply learning rate
     auto multiplyByAlpha = [&](float x) -> float { return alpha * x; };
     totalWeightUpdate.applyFunc(multiplyByAlpha);
-    weights = weights - totalWeightUpdate;
     totalBiasesUpdate.applyFunc(multiplyByAlpha);
+
+    // Add momentum
+    auto multiplyByMomentumCoef = [&](float x) -> float { return momentumCoeficient * x; };
+    previousWeightUpdate.applyFunc(multiplyByMomentumCoef);
+    previousBiasesUpdate.applyFunc(multiplyByMomentumCoef);
+    totalWeightUpdate = totalWeightUpdate + previousWeightUpdate;
+    totalBiasesUpdate = totalBiasesUpdate + previousBiasesUpdate;
+
+    // Learn
+    weights = weights - totalWeightUpdate;
     biases = biases - totalBiasesUpdate;
 
+    // Save previous updates
+    previousWeightUpdate = totalWeightUpdate;
+    previousBiasesUpdate = totalBiasesUpdate;
+
+    // Clear matrices
     totalWeightUpdate.setDimensions(previousLayer->getOutputWidth(), this->getOutputWidth());
     totalBiasesUpdate.setDimensions(1, this->getOutputWidth());
 }

@@ -29,7 +29,7 @@ public:
 
     virtual int getOutputWidth() const noexcept override;
 
-    virtual void updateWeights(float alpha) override;
+    virtual void updateWeights(float alpha, float momentumCoeficient) override;
 
 };
 

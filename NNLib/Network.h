@@ -14,21 +14,24 @@ class Network
 private: 
     // added some private attributes to help me with methods
     std::vector<std::shared_ptr<ILayer>> layers;
-    float alpha;
-    int totalSteps;
-    int epoch;
-    int epochLimit;
+
     // Constructors / destructor
 public:
-    Network(std::vector<std::shared_ptr<ILayer>> layers, float alpha);
+    Network(std::vector<std::shared_ptr<ILayer>> layers);
 
     // Methods
 public:
-    void train(const int numOfEpochs, const int batchSize, const std::vector<dataload::PicData>& trainData, std::vector<dataload::PicData>& validationData);
+    void train(const int numOfEpochs, 
+        const int batchSize, 
+        const float learningRate, 
+        const float momentumCoeficient, 
+        const std::vector<dataload::PicData>& trainData, 
+        std::optional<std::vector<dataload::PicData>> validationData = std::nullopt);
 
-    std::tuple<float, float> trainOnBatch(const std::vector<dataload::PicData>& batch, int datasetIndex);
+    std::tuple<float, float> trainOnBatch(const std::vector<dataload::PicData>& batch, const float alpha, const float momentumCoeficient);
 
-    void predict(std::vector<dataload::PicData> validationData);
+    std::tuple<float, float> predict(std::vector<dataload::PicData> validationData);
+
 private:
     bool correctPrediction(const mathlib::Matrix& pred, const std::vector<int>& labels);
 

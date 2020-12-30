@@ -115,7 +115,7 @@ TEST(XORTest, XOR_2D_Integration)
         // Weight update
         for (auto layer : layers)
         {
-            layer->updateWeights(0.01);
+            layer->updateWeights(0.01, 0);
         } 
 
         std::cout << "Error: " << error << std::endl;

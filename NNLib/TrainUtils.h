@@ -1,6 +1,7 @@
 #pragma once
 #include <iostream>
 #include<cmath>
+
 namespace nnlib
 {
 
@@ -12,9 +13,13 @@ public:
 
     // Methods
 public:
-    static float powerSchedulingLR(float LR, int epochSteps, int currSteps);
-    static float exponentialScheduling(float LR, int epochSteps, int currSteps);
-    static float piecewiseConstantScheduling(float LR, int epochSteps, int currSteps);
-    static float oneCycleScheduling(float LR, int epochSteps, int currSteps);
+    static float powerSchedulingLR(float LR, int numOfBatchesInEpoch, int currentBatch);
+    
+    static float exponentialScheduling(float LR, int numOfBatchesInEpoch, int currentBatch);
+    
+    static float piecewiseConstantScheduling(float LR, int numOfBatchesInEpoch, int currentBatch);
+
+    static float oneCycleScheduling(float LR, int maxBatches, int currentBatch);
+    
 };
 }
