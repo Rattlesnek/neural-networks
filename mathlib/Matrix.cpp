@@ -119,22 +119,22 @@ std::vector<float>::iterator Matrix::end()
 
 float& Matrix::operator()(int row, int col)
 {
-    return mat.at(row * cols + col); // change to [] in future
+    return mat[row * cols + col];
 }
 
 float Matrix::operator()(int row, int col) const
 {
-    return mat.at(row * cols + col); // change to [] in future
+    return mat[row * cols + col];
 }
 
 float& Matrix::operator[](int i)
 {
-    return mat.at(i); // change to [] in future
+    return mat[i];
 }
 
 float Matrix::operator[](int i) const
 {
-    return mat.at(i); // change to [] in future
+    return mat[i];
 }
 
 Matrix Matrix::operator+(const Matrix& m2) const
