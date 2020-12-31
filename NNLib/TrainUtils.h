@@ -17,7 +17,7 @@ public:
     
     static float exponentialScheduling(float LR, int numOfBatchesInEpoch, int currentBatch);
     
-    static float piecewiseConstantScheduling(float LR, int numOfBatchesInEpoch, int currentBatch);
+    static float piecewiseScheduling(float LR, int maxBatches, int currentBatch);
 
     static float oneCycleScheduling(float LR, int maxBatches, int currentBatch);
     

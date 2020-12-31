@@ -78,9 +78,9 @@ void Matrix::applyFunc(std::function<float(float)> func)
     {
         for (int j = 0; j < m.cols; j++)
         {
-            m(i,j) = func(m(i,j));
+            m(i,j) = func(m(i, j));
         }
-    } 
+    }
 }
 
 Matrix Matrix::func(std::function<float(float)> func) const

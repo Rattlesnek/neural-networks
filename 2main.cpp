@@ -21,10 +21,10 @@ using namespace nnlib;
 
 int main(int argc, char *argv[])
 {  
-    int max = 10000;
+    int max = 100;
     for (int i = 0; i <= max; i++)
     {
-        std::cout << TrainUtils::oneCycleScheduling(0.001, max, i) << std::endl;
+        std::cout << i << ": "<<TrainUtils::piecewiseScheduling(100, max, i) << std::endl;
     }
 
     return 0 ;
