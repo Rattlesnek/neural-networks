@@ -9,7 +9,7 @@ using namespace mathlib;
 PicData::PicData(std::vector<float> vec, std::vector<int> labels, int rows, int cols) :
     mat(rows, cols, vec), labels(labels)
 {
-    mat.applyFunc([](float x) -> float { return x/255.f; });
+    mat.applyFunc([](float x) -> float { return x / 255.f; });
 }
 
 const Matrix PicData::getMat() const noexcept

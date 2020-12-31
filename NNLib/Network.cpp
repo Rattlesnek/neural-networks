@@ -21,7 +21,7 @@ Network::Network(std::vector<std::shared_ptr<ILayer>> layers) :
 void Network::train(const int numOfEpochs, 
     const int batchSize, 
     const float learningRate, 
-    const float momentumCoeficient, 
+    const float momentumFactor, 
     const std::vector<PicData>& trainData, 
     std::optional<std::vector<dataload::PicData>> validationData)
 {
@@ -55,14 +55,10 @@ void Network::train(const int numOfEpochs,
         {           
             std::vector<PicData> batch(trainData.begin() + datasetIndex, trainData.begin() + datasetIndex + batchSize);
             
-            float alpha;
             // Learn something, viz. TrainUtils , alpha == LR
-            //float alpha = TrainUtils::powerSchedulingLR(alpha, stepsPerEpocha, totalSteps);
-            //alpha = TrainUtils::exponentialScheduling(alpha , stepsPerEpocha , totalSteps);
-            
-            alpha = TrainUtils::oneCycleScheduling(learningRate, maxBatches, currentBatch);
+            //float alpha = TrainUtils::oneCycleScheduling(learningRate, maxBatches, currentBatch);
 
-            auto [batchAccuracy, meanBatchLoss] = trainOnBatch(batch, alpha, momentumCoeficient);
+            auto [batchAccuracy, meanBatchLoss] = trainOnBatch(batch, learningRate, momentumFactor);
 
             std::cout << meanBatchLoss << ", " << std::flush;
 
@@ -100,7 +96,7 @@ void Network::train(const int numOfEpochs,
     std::cout << "=====================================\n";
 }
 
-std::tuple<float, float> Network::trainOnBatch(const std::vector<PicData>& batch, const float alpha, const float momentumCoeficient)
+std::tuple<float, float> Network::trainOnBatch(const std::vector<PicData>& batch, const float alpha, const float momentumFactor)
 {
     int totalBatchCorrect = 0;
     float totalBatchLoss = 0.f;
@@ -148,7 +144,7 @@ std::tuple<float, float> Network::trainOnBatch(const std::vector<PicData>& batch
 
     for (auto layer : layers)
     {
-        layer->updateWeights(alpha, momentumCoeficient);
+        layer->updateWeights(alpha, momentumFactor);
     }
 
     // Return accuracy and loss

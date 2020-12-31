@@ -31,12 +31,14 @@ Dense::Dense(std::string name,
     weights.setDimensions(previousLayer->getOutputWidth(), this->getOutputWidth());
     totalWeightUpdate.setDimensions(previousLayer->getOutputWidth(), this->getOutputWidth());
     previousWeightUpdate.setDimensions(previousLayer->getOutputWidth(), this->getOutputWidth());
+    RMSpropWeight.setDimensions(previousLayer->getOutputWidth(), this->getOutputWidth());
 
     biases.setDimensions(1, this->getOutputWidth());
-    totalBiasesUpdate.setDimensions(1, this->getOutputWidth());
-    previousBiasesUpdate.setDimensions(1, this->getOutputWidth());
+    totalBiasUpdate.setDimensions(1, this->getOutputWidth());
+    previousBiasUpdate.setDimensions(1, this->getOutputWidth());
+    RMSpropBias.setDimensions(1, this->getOutputWidth());
 
-    initializeWeightsAndBiases();
+    initializeWeights();
 }
 
 Matrix Dense::forward(const Matrix& input) const
@@ -72,44 +74,51 @@ Matrix Dense::backward(const Matrix& input, const Matrix& gradient)
     #pragma omp critical
     {
         totalWeightUpdate = totalWeightUpdate + singleWeightUpdate;
-        totalBiasesUpdate = totalBiasesUpdate + singleBiasUpdate;
+        totalBiasUpdate = totalBiasUpdate + singleBiasUpdate;
     }
     return nextGradient.T();
 }
 
-void Dense::updateWeights(float alpha, float momentumCoeficient)
-{
-    // Apply learning rate
-    auto multiplyByAlpha = [&](float x) -> float { return alpha * x; };
-    totalWeightUpdate.applyFunc(multiplyByAlpha);
-    totalBiasesUpdate.applyFunc(multiplyByAlpha);
+void Dense::updateWeights(float alpha, float momentumFactor)
+{   
+    // RMSProp
+    const float decay = 0.9f;
+    
+    auto square = [&](float x) -> float { return x * x; };
+    auto decayFunc = [&](float x) -> float { return decay * x; };
+    auto decayFuncInverse = [&](float x) -> float { return (1.f - decay) * x; };
+
+    RMSpropWeight = RMSpropWeight.func(decayFunc) + totalWeightUpdate.func(square).func(decayFuncInverse);
+    RMSpropBias = RMSpropBias.func(decayFunc) + totalBiasUpdate.func(square).func(decayFuncInverse);
+
+    // Apply RMSProp
+    auto fraction = [&](float x) -> float { return (float) alpha / std::sqrt(x + 1.e-8f); };
+    totalWeightUpdate = Matrix::arrayMult(RMSpropWeight.func(fraction), totalWeightUpdate);
+    totalBiasUpdate = Matrix::arrayMult(RMSpropBias.func(fraction), totalBiasUpdate);
 
     // Add momentum
-    auto multiplyByMomentumCoef = [&](float x) -> float { return momentumCoeficient * x; };
-    previousWeightUpdate.applyFunc(multiplyByMomentumCoef);
-    previousBiasesUpdate.applyFunc(multiplyByMomentumCoef);
-    totalWeightUpdate = totalWeightUpdate + previousWeightUpdate;
-    totalBiasesUpdate = totalBiasesUpdate + previousBiasesUpdate;
+    auto multiplyByMomentumFactor = [&](float x) -> float { return momentumFactor * x; };
+    totalWeightUpdate = totalWeightUpdate + previousWeightUpdate.func(multiplyByMomentumFactor);
+    totalBiasUpdate = totalBiasUpdate + previousBiasUpdate.func(multiplyByMomentumFactor);
 
     // Learn
     weights = weights - totalWeightUpdate;
-    biases = biases - totalBiasesUpdate;
+    biases = biases - totalBiasUpdate;
 
     // Save previous updates
     previousWeightUpdate = totalWeightUpdate;
-    previousBiasesUpdate = totalBiasesUpdate;
+    previousBiasUpdate = totalBiasUpdate;
 
     // Clear matrices
     totalWeightUpdate.setDimensions(previousLayer->getOutputWidth(), this->getOutputWidth());
-    totalBiasesUpdate.setDimensions(1, this->getOutputWidth());
+    totalBiasUpdate.setDimensions(1, this->getOutputWidth());
 }
 
-void Dense::initializeWeightsAndBiases()
+void Dense::initializeWeights()
 {
-    // TODO
+    // Kaiming initialization / He initialization
     std::default_random_engine generator;
-    std::normal_distribution<float> distribution(0.f, 1.f);
-    auto randomInitialization = [&](float x) -> float { auto z = distribution(generator) * std::sqrt(1.f/ previousLayer->getOutputWidth()); return z ; };
+    std::normal_distribution<float> distribution(0.f, std::sqrt(2.f / (float)previousLayer->getOutputWidth()));
+    auto randomInitialization = [&](float x) -> float { auto z = distribution(generator); return z; };
     weights.applyFunc(randomInitialization);
-    biases.applyFunc(randomInitialization);
 }

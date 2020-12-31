@@ -18,10 +18,13 @@ private:
     mathlib::Matrix biases; // column vector
 
     mathlib::Matrix totalWeightUpdate; // matrix
-    mathlib::Matrix totalBiasesUpdate; // column vector
+    mathlib::Matrix totalBiasUpdate; // column vector
 
     mathlib::Matrix previousWeightUpdate;
-    mathlib::Matrix previousBiasesUpdate;
+    mathlib::Matrix previousBiasUpdate;
+
+    mathlib::Matrix RMSpropWeight;
+    mathlib::Matrix RMSpropBias;
 
     // Constructors / destructor
 public:
@@ -41,7 +44,7 @@ public:
 
     // Methods
 private:
-    void initializeWeightsAndBiases();
+    void initializeWeights();
 
 };
 

@@ -12,8 +12,6 @@ private:
     mathlib::Matrix mat;
     std::vector<int> labels;
 
-    
-
     // Constructors / destructor
 public:
     PicData(std::vector<float> vec, std::vector<int> labels, int rows, int cols);

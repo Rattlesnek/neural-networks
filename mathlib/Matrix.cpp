@@ -83,6 +83,21 @@ void Matrix::applyFunc(std::function<float(float)> func)
     } 
 }
 
+Matrix Matrix::func(std::function<float(float)> func) const
+{
+    const Matrix& m = *this;
+
+    Matrix out(m.rows, m.cols);
+    for (int i = 0; i < m.rows; i++)
+    {
+        for (int j = 0; j < m.cols; j++)
+        {
+            out(i,j) = func(m(i,j));
+        }
+    }
+    return out;
+}
+
 Matrix Matrix::T() const
 {
     const Matrix& m = *this;

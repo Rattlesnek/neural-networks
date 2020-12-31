@@ -41,6 +41,8 @@ public:
 
     void applyFunc(std::function<float(float)> func);
 
+    Matrix func(std::function<float(float)> func) const;
+
     Matrix T() const;
 
     float sum() const;
