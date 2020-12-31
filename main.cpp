@@ -21,16 +21,22 @@ std::vector<std::shared_ptr<ILayer>> buildNetwork()
 
     std::shared_ptr<ILayer> input = std::make_shared<Input>("Input_layer", 1, 28*28);
     
-    std::shared_ptr<ILayer> dense1 = std::make_shared<Dense>("Dense_layer_hidden1", input, 120);
-    std::shared_ptr<ILayer> activation1 = std::make_shared<Activation>("Activation_hidden1", dense1, std::make_shared<ReLU>());
+    std::shared_ptr<ILayer> dense1 = std::make_shared<Dense>("Dense_layer_hidden1", input, 150);
+    std::shared_ptr<ILayer> activation1 = std::make_shared<Activation>("Activation_hidden1", dense1, std::make_shared<LeakyReLU>());
 
     std::shared_ptr<ILayer> dense2 = std::make_shared<Dense>("Dense_layer_hidden2", activation1, 50);
-    std::shared_ptr<ILayer> activation2 = std::make_shared<Activation>("Activation_hidden2", dense2, std::make_shared<ReLU>());
+    std::shared_ptr<ILayer> activation2 = std::make_shared<Activation>("Activation_hidden2", dense2, std::make_shared<LeakyReLU>());
 
-    std::shared_ptr<ILayer> dense3 = std::make_shared<Dense>("Dense_layer_hidden3", activation2, 20);
-    std::shared_ptr<ILayer> activation3 = std::make_shared<Activation>("Activation_hidden3", dense3, std::make_shared<ReLU>());
+    std::shared_ptr<ILayer> dense3 = std::make_shared<Dense>("Dense_layer_hidden3", activation2, 40);
+    std::shared_ptr<ILayer> activation3 = std::make_shared<Activation>("Activation_hidden3", dense3, std::make_shared<LeakyReLU>());
 
-    std::shared_ptr<ILayer> dense4 = std::make_shared<Dense>("Dense_layer_output", activation3, 10);
+    // std::shared_ptr<ILayer> dense4 = std::make_shared<Dense>("Dense_layer_hidden4", activation3, 40);
+    // std::shared_ptr<ILayer> activation4 = std::make_shared<Activation>("Activation_hidden4", dense4, std::make_shared<LeakyReLU>());
+    
+    // std::shared_ptr<ILayer> dense5 = std::make_shared<Dense>("Dense_layer_hidden5", activation4, 40);
+    // std::shared_ptr<ILayer> activation5 = std::make_shared<Activation>("Activation_hidden5", dense5, std::make_shared<ReLU>());
+   
+    std::shared_ptr<ILayer> output = std::make_shared<Dense>("Dense_layer_output", activation3, 10);
 
     std::vector<std::shared_ptr<ILayer>> layers = {
         input,
@@ -40,7 +46,11 @@ std::vector<std::shared_ptr<ILayer>> buildNetwork()
         activation2,
         dense3,
         activation3,
-        dense4
+        // dense4,
+        // activation4,
+        // dense5,
+        // activation5,
+        output
     };
 
     for (auto layer : layers)
@@ -82,19 +92,19 @@ int main(int argc, char *argv[])
                                            "../data/fashion_mnist_test_labels.csv");
 
     // Change the leftmost number here for taking data out
-    auto trainData = trainDataLoader.loadNOfEach(600, 1, 784);
+    //auto trainData = trainDataLoader.loadNOfEach(600, 1, 784);
     
-    //auto trainData = trainDataLoader.loadAllData(1, 784);
-    //auto testData = testDataLoader.loadAllData(1, 784);
+    auto trainData = trainDataLoader.loadAllData(1, 784);
+    auto testData = testDataLoader.loadAllData(1, 784);
 
     std::random_shuffle(trainData.begin(), trainData.end(),[&](int i) {return std::rand() % i;} );
 
-    auto [validationData, trainDataSplit] = PreprocessingUtils::splitDataValidTrain(0.1, trainData);
+    //auto [validationData, trainDataSplit] = PreprocessingUtils::splitDataValidTrain(0.1, trainData);
 
     float learningRate = 0.001;
     float momentumCoeficient = 0.9;
 
-    network.train(2, 100, learningRate, momentumCoeficient, trainDataSplit, validationData);
+    network.train(5, 100, learningRate, momentumCoeficient, trainData, testData);
     
     return 0;
 }

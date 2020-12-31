@@ -56,9 +56,10 @@ void Network::train(const int numOfEpochs,
             std::vector<PicData> batch(trainData.begin() + datasetIndex, trainData.begin() + datasetIndex + batchSize);
             
             float alpha;
+            //alpha = learningRate;
             // Learn something, viz. TrainUtils , alpha == LR
-            //float alpha = TrainUtils::powerSchedulingLR(alpha, stepsPerEpocha, totalSteps);
-            //alpha = TrainUtils::exponentialScheduling(alpha , stepsPerEpocha , totalSteps);
+            //alpha = TrainUtils::powerSchedulingLR(learningRate, numOfBatches, currentBatch);
+            //alpha = TrainUtils::exponentialScheduling(learningRate , numOfBatches , currentBatch);
             
             alpha = TrainUtils::oneCycleScheduling(learningRate, maxBatches, currentBatch);
 
