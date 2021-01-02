@@ -80,7 +80,7 @@ void Network::train(const int numOfEpochs,
         // Validation 
         if (validationData.has_value())
         {
-            auto [validAccuracy, meanValidLoss] = Network::predict(*validationData);
+            auto [validAccuracy, meanValidLoss] = validate(*validationData);
             std::cout << "------------------------------------------\n";
             std::cout << "Validation\n";
             std::cout << "Validation accuracy: " << validAccuracy * 100 << std::endl;
@@ -152,13 +152,13 @@ std::tuple<float, float> Network::trainOnBatch(const std::vector<PicData>& batch
     return std::make_tuple(batchAccuracy, meanBatchLoss);
 }
 
-std::tuple<float, float> Network::predict(std::vector<dataload::PicData> data)
+std::tuple<float, float> Network::validate(const std::vector<dataload::PicData>& validationData)
 {
-    float totalPredictLoss = 0.f;
+    float totalValidLoss = 0.f;
     int correctPred = 0;
 
     #pragma omp parallel for
-    for (auto pic : data)
+    for (const auto& pic : validationData)
     {
         auto label = pic.getLabels();
         auto output = pic.getMat();
@@ -176,7 +176,7 @@ std::tuple<float, float> Network::predict(std::vector<dataload::PicData> data)
         {
             for (int i = 0; i < losses.getRows(); i++)
             {
-                totalPredictLoss += losses(i, 0);
+                totalValidLoss += losses(i, 0);
             }
         }
         
@@ -189,9 +189,33 @@ std::tuple<float, float> Network::predict(std::vector<dataload::PicData> data)
         }
     }
 
-    float predictAccuracy = (float) correctPred / (float) data.size();
-    float meanPredictLoss = (float) totalPredictLoss / (float) data.size();
-    return std::make_tuple(predictAccuracy, meanPredictLoss);
+    float validAccuracy = (float) correctPred / (float) validationData.size();
+    float meanValidLoss = (float) totalValidLoss / (float) validationData.size();
+    return std::make_tuple(validAccuracy, meanValidLoss);
+}
+
+std::vector<Matrix> Network::predict(const std::vector<Matrix>& predictionInputs)
+{
+    std::vector<Matrix> outputProbabilities;
+    
+    #pragma omp parallel for
+    for (const auto& input : predictionInputs)
+    {
+        // Forward
+        Matrix output = input;
+        for (auto layer : layers)
+        {
+            output = layer->forward(output);
+        }
+        auto probability = ErrorFunc::softMax(output);
+        
+        #pragma omp critical
+        {
+            outputProbabilities.emplace_back(probability);
+        }
+    }
+
+    return outputProbabilities;
 }
 
 bool Network::correctPrediction(const Matrix& pred, const std::vector<int>& labels)
@@ -213,5 +237,3 @@ bool Network::correctPrediction(const Matrix& pred, const std::vector<int>& labe
     }
     return false;
 }
-
-

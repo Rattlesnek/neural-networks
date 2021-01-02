@@ -24,14 +24,15 @@ public:
     void train(const int numOfEpochs, 
         const int batchSize, 
         const float learningRate, 
-        const float momentumFactor
-, 
+        const float momentumFactor,
         const std::vector<dataload::PicData>& trainData, 
         std::optional<std::vector<dataload::PicData>> validationData = std::nullopt);
 
     std::tuple<float, float> trainOnBatch(const std::vector<dataload::PicData>& batch, const float alpha, const float momentumFactor);
 
-    std::tuple<float, float> predict(std::vector<dataload::PicData> validationData);
+    std::tuple<float, float> validate(const std::vector<dataload::PicData>& validationData);
+
+    std::vector<mathlib::Matrix> predict(const std::vector<mathlib::Matrix>& predictionInputs);
 
 private:
     bool correctPrediction(const mathlib::Matrix& pred, const std::vector<int>& labels);

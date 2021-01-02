@@ -60,7 +60,7 @@ std::vector<PicData> DataLoader::loadAllData(int rows, int cols)
     std::vector<PicData> pics;
     while (true)
     {
-        
+
         try
         {
             pics.emplace_back(loadPicture(rows, cols));

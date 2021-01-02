@@ -87,20 +87,34 @@ int main(int argc, char *argv[])
                                            "../data/fashion_mnist_test_labels.csv");
 
     // Change the leftmost number here for taking data out
-    //auto allTrainData = trainDataLoader.loadNOfEach(1000, 1, 784);
+    auto allTrainData = trainDataLoader.loadNOfEach(600, 1, 784);
     
-    auto allTrainData = trainDataLoader.loadAllData(1, 784);
-    const auto& trainData = allTrainData;
-    auto testData = testDataLoader.loadAllData(1, 784);
+    // auto allTrainData = trainDataLoader.loadAllData(1, 784);
+    // const auto& trainData = allTrainData;
+    // auto testData = testDataLoader.loadAllData(1, 784);
 
     std::random_shuffle(allTrainData.begin(), allTrainData.end(), [&](int i){ return std::rand() % i; } );
     
-    //auto [validationData, trainData] = PreprocessingUtils::splitDataValidTrain(0.1, allTrainData);
+    auto [testData, trainData] = PreprocessingUtils::splitDataValidTrain(0.1, allTrainData);
 
     float learningRate = 0.0005;
     float momentumFactor = 0.9;
 
-    network.train(5, 100, learningRate, momentumFactor, trainData, testData);
+    network.train(2, 100, learningRate, momentumFactor, trainData, testData);
+
+    std::vector<Matrix> mats;
+    for (const auto& pic : testData)
+    {
+        mats.emplace_back(pic.getMat());
+    }
+
+    auto predictionOutputs = network.predict(mats);
+
+    // for (const auto& output : predictionOutputs)
+    // {
+    //     std::cout << output;
+    // }
     
+
     return 0;
 }

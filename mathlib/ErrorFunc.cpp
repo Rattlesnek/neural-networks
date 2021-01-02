@@ -86,6 +86,5 @@ Matrix ErrorFunc::gradSoftmaxCrossentropyWithLogits(const Matrix& input, const s
     }
     
     return softmax;
-
 }
 
