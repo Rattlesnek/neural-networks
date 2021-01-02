@@ -26,7 +26,7 @@ std::vector<std::shared_ptr<ILayer>> buildNetwork()
     std::cout << "Height: " << dense1->getOutputHeight() << std::endl;
     std::cout << "Width: " << dense1->getOutputWidth() << std::endl;
 
-    std::shared_ptr<ILayer> activation1 = std::make_shared<Activation>("Activation_hidden", dense1, std::make_shared<ReLU>());
+    std::shared_ptr<ILayer> activation1 = std::make_shared<Activation>("Activation_hidden", dense1, std::make_shared<Sigmoid>());
     std::cout << "Name: " << activation1->getName() << std::endl;
     std::cout << "Height: " << activation1->getOutputHeight() << std::endl;
     std::cout << "Width: " << activation1->getOutputWidth() << std::endl;
@@ -36,17 +36,11 @@ std::vector<std::shared_ptr<ILayer>> buildNetwork()
     std::cout << "Height: " << dense2->getOutputHeight() << std::endl;
     std::cout << "Width: " << dense2->getOutputWidth() << std::endl;
 
-    // std::shared_ptr<ILayer> activation2 = std::make_shared<Activation>("Activation_output", dense2, std::make_shared<Sigmoid>());
-    // std::cout << "Name: " << activation2->getName() << std::endl;
-    // std::cout << "Height: " << activation2->getOutputHeight() << std::endl;
-    // std::cout << "Width: " << activation2->getOutputWidth() << std::endl;
-
     std::vector<std::shared_ptr<ILayer>> layers = {
         input,
         dense1,
         activation1,
         dense2,
-        //activation2
     };
 
     std::cout << "End network architecture\n";
@@ -61,10 +55,10 @@ TEST(XORTest, XOR_2D_Integration)
     // Dataset
     // tuple(XOR-input, one-hot-vector)
     std::vector<std::tuple<Matrix, std::vector<int>>> dataXOR = {
-        std::tuple<Matrix, std::vector<int>>(Matrix(1, 2, {0, 0}), { 1}),
-        std::tuple<Matrix, std::vector<int>>(Matrix(1, 2, {0, 1}), { 0}),
-        std::tuple<Matrix, std::vector<int>>(Matrix(1, 2, {1, 0}), { 0}),
-        std::tuple<Matrix, std::vector<int>>(Matrix(1, 2, {1, 1}), { 1})
+        std::tuple<Matrix, std::vector<int>>(Matrix(1, 2, {0, 0}), {1}),
+        std::tuple<Matrix, std::vector<int>>(Matrix(1, 2, {0, 1}), {0}),
+        std::tuple<Matrix, std::vector<int>>(Matrix(1, 2, {1, 0}), {0}),
+        std::tuple<Matrix, std::vector<int>>(Matrix(1, 2, {1, 1}), {1})
     };
 
     // Create vector of layers
@@ -74,7 +68,7 @@ TEST(XORTest, XOR_2D_Integration)
     std::cout << "Training\n";
 
     // set number of threads
-    //omp_set_num_threads(4);
+    // omp_set_num_threads(4);
 
     int iterCnt = 0;
 
@@ -142,7 +136,7 @@ TEST(XORTest, XOR_2D_Integration)
         std::cout << "--------------------------\n";
         std::cout << "Input: " << input;
         std::cout << "Prediction: " << probability;
-        std::cout << "Label: " << label[0];
+        std::cout << "Label: " << label[0] << std::endl;
     }
 
     std::cout << "Prediction error " << error << std::endl;
@@ -150,7 +144,7 @@ TEST(XORTest, XOR_2D_Integration)
     std::cout << "End prediction\n";
     std::cout << "=====================================\n";
 
-    EXPECT_TRUE(error < 0.1f);
+    EXPECT_TRUE(error < 0.001f);
 }
 
 TEST(XORTest, XOR_3D_Integration)
