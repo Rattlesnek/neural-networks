@@ -20,13 +20,11 @@ public:
 
     virtual int getOutputWidth() const = 0;
 
-    virtual const mathlib::Matrix& getLastOutput() const = 0;
-
-    virtual mathlib::Matrix forward(const mathlib::Matrix& input) = 0;
+    virtual mathlib::Matrix forward(const mathlib::Matrix& input) const = 0;
     
-    virtual mathlib::Matrix backward(const mathlib::Matrix& gradient) = 0;
+    virtual mathlib::Matrix backward(const mathlib::Matrix& input, const mathlib::Matrix& gradient) = 0;
 
-    virtual void updateWeights() = 0;
+    virtual void updateWeights(float alpha, float momentumCoeficient) = 0;
 
 };
 

@@ -20,21 +20,21 @@ Activation::Activation(std::string name,
     }
 
     // set output size
-    output.setDimensions(previousLayer->getOutputHeight(), previousLayer->getOutputWidth());
+    outputHeight = previousLayer->getOutputHeight();
+    outputWidth = previousLayer->getOutputWidth();
 }
 
-Matrix Activation::forward(const Matrix& input)
+Matrix Activation::forward(const Matrix& input) const
 {
-    if (input.getRows() != output.getRows() || input.getCols() != output.getCols())
+    if (input.getRows() != outputHeight || input.getCols() != outputWidth)
     {
         throw LayerException(name + " - Forward: input of wrong dimensions!");
     }
     
-    output = activation->call(input);
-    return output;
+    return activation->call(input);
 }
 
-Matrix Activation::backward(const Matrix& gradient)
+Matrix Activation::backward(const Matrix& input, const Matrix& gradient)
 {
-    return Matrix::arrayMult(gradient, activation->callDerivative(previousLayer->getLastOutput()));
+    return Matrix::arrayMult(gradient, activation->callDerivative(input));
 }

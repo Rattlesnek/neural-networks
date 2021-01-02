@@ -9,9 +9,9 @@ using namespace mathlib::activation;
 Dense::Dense(std::string name,
     std::shared_ptr<ILayer> previousLayer,
     int numOfNeurons, 
-    int batchSize)
+    int PicDataSize)
     :
-    BaseLayer(std::move(name), batchSize, numOfNeurons),
+    BaseLayer(std::move(name), PicDataSize, numOfNeurons), 
     previousLayer(previousLayer)
 {
     // Dummy constructor
@@ -20,7 +20,7 @@ Dense::Dense(std::string name,
     {
         throw LayerException(this->name + " - Constructor - nullptr passed.");
     }
-    if (previousLayer->getOutputHeight() != batchSize)
+    if (previousLayer->getOutputHeight() != PicDataSize)
     {
         throw LayerException(this->name + " - Constructor - could not be connected to previous layer. Size mismatch.");
     }
@@ -30,14 +30,18 @@ Dense::Dense(std::string name,
     // this matrix of weigths will be multiplied with the input vector from the left like this: weights * input -- hence the size of the matrix
     weights.setDimensions(previousLayer->getOutputWidth(), this->getOutputWidth());
     totalWeightUpdate.setDimensions(previousLayer->getOutputWidth(), this->getOutputWidth());
+    previousWeightUpdate.setDimensions(previousLayer->getOutputWidth(), this->getOutputWidth());
+    RMSpropWeight.setDimensions(previousLayer->getOutputWidth(), this->getOutputWidth());
 
     biases.setDimensions(1, this->getOutputWidth());
-    totalBiasesUpdate.setDimensions(1, this->getOutputWidth());
+    totalBiasUpdate.setDimensions(1, this->getOutputWidth());
+    previousBiasUpdate.setDimensions(1, this->getOutputWidth());
+    RMSpropBias.setDimensions(1, this->getOutputWidth());
 
-    initializeWeightsAndBiases();
+    initializeWeights();
 }
 
-Matrix Dense::forward(const Matrix& input)
+Matrix Dense::forward(const Matrix& input) const
 {
     //dummy implementation
     if (! input.isRowVector())
@@ -46,11 +50,10 @@ Matrix Dense::forward(const Matrix& input)
     }
 
     // 1. Step
-    output = input * weights + biases;
-    return output;
+    return input * weights + biases;
 }
 
-Matrix Dense::backward(const Matrix& gradient)
+Matrix Dense::backward(const Matrix& input, const Matrix& gradient)
 {
     //dummy implementation
     if (! gradient.isRowVector())
@@ -64,38 +67,58 @@ Matrix Dense::backward(const Matrix& gradient)
 
     // 3. Step
     // calculate single weight and bias update
-    Matrix singleWeightUpdate = previousLayer->getLastOutput().T() * gradient;
+    Matrix singleWeightUpdate = input.T() * gradient;
     Matrix singleBiasUpdate = gradient; // ???
 
     // 4. Step TODO
-    totalWeightUpdate = totalWeightUpdate + singleWeightUpdate;
-    totalBiasesUpdate = totalBiasesUpdate + singleBiasUpdate;
-
+    #pragma omp critical
+    {
+        totalWeightUpdate = totalWeightUpdate + singleWeightUpdate;
+        totalBiasUpdate = totalBiasUpdate + singleBiasUpdate;
+    }
     return nextGradient.T();
 }
 
-void Dense::updateWeights()
-{
-    // TEMPORARY -- update now
-    const float alpha = 0.001f;
-    auto multiplyByAlpha = [&](float x) -> float { return alpha * x; };
-    totalWeightUpdate.applyFunc(multiplyByAlpha);
-    weights = weights - totalWeightUpdate;
-    totalBiasesUpdate.applyFunc(multiplyByAlpha);
-    biases = biases - totalBiasesUpdate;
+void Dense::updateWeights(float alpha, float momentumFactor)
+{   
+    // RMSProp
+    const float decay = 0.9f;
+    
+    auto square = [&](float x) -> float { return x * x; };
+    auto decayFunc = [&](float x) -> float { return decay * x; };
+    auto decayFuncInverse = [&](float x) -> float { return (1.f - decay) * x; };
 
+    RMSpropWeight = RMSpropWeight.func(decayFunc) + totalWeightUpdate.func(square).func(decayFuncInverse);
+    RMSpropBias = RMSpropBias.func(decayFunc) + totalBiasUpdate.func(square).func(decayFuncInverse);
+
+    // Apply RMSProp
+    auto fraction = [&](float x) -> float { return (float) alpha / std::sqrt(x + 1.e-8f); };
+    totalWeightUpdate = Matrix::arrayMult(RMSpropWeight.func(fraction), totalWeightUpdate);
+    totalBiasUpdate = Matrix::arrayMult(RMSpropBias.func(fraction), totalBiasUpdate);
+
+    // Add momentum
+    auto multiplyByMomentumFactor = [&](float x) -> float { return momentumFactor * x; };
+    totalWeightUpdate = totalWeightUpdate + previousWeightUpdate.func(multiplyByMomentumFactor);
+    totalBiasUpdate = totalBiasUpdate + previousBiasUpdate.func(multiplyByMomentumFactor);
+
+    // Learn
+    weights = weights - totalWeightUpdate;
+    biases = biases - totalBiasUpdate;
+
+    // Save previous updates
+    previousWeightUpdate = totalWeightUpdate;
+    previousBiasUpdate = totalBiasUpdate;
+
+    // Clear matrices
     totalWeightUpdate.setDimensions(previousLayer->getOutputWidth(), this->getOutputWidth());
-    totalBiasesUpdate.setDimensions(1, this->getOutputWidth());
-    // TEMPORARY
+    totalBiasUpdate.setDimensions(1, this->getOutputWidth());
 }
 
-void Dense::initializeWeightsAndBiases()
+void Dense::initializeWeights()
 {
-    // TODO
+    // Kaiming initialization / He initialization
     std::default_random_engine generator;
-    std::normal_distribution<float> distribution(0.f, 1.f);
-
-    auto randomInitialization = [&](float x) -> float { return distribution(generator); };
+    std::normal_distribution<float> distribution(0.f, std::sqrt(2.f / (float)previousLayer->getOutputWidth()));
+    auto randomInitialization = [&](float x) -> float { auto z = distribution(generator); return z; };
     weights.applyFunc(randomInitialization);
-    biases.applyFunc(randomInitialization);
 }

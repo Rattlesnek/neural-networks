@@ -2,7 +2,6 @@
 
 #include "../mathlib/Matrix.h"
 
-
 namespace dataload
 {
 class PicData 
@@ -11,17 +10,15 @@ class PicData
     // Matrices
 private:
     mathlib::Matrix mat;
-    mathlib::Matrix label;
-
-    void createOneHotVector(int i);
+    std::vector<int> labels;
 
     // Constructors / destructor
 public:
-    PicData(std::vector<float> vec, int label, int rows, int cols);
+    PicData(std::vector<float> vec, std::vector<int> labels, int rows, int cols);
 
     // Methods
 public:
     const mathlib::Matrix getMat() const noexcept;  
-    const mathlib::Matrix getLabel() const noexcept;
+    const std::vector<int> getLabels() const noexcept;
 };
 }

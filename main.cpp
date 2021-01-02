@@ -2,6 +2,8 @@
 #include <memory>
 #include <algorithm>
 #include <string>
+#include <omp.h>
+#include <unistd.h>
 
 #include "MathLib.hpp"
 #include "DataLoad.hpp"
@@ -17,45 +19,47 @@ std::vector<std::shared_ptr<ILayer>> buildNetwork()
     std::cout << "======================================\n";
     std::cout << "Network architecture\n";
 
-    std::shared_ptr<ILayer> input = std::make_shared<Input>("Input_layer", 1, 2);
-    std::cout << "Name: " << input->getName() << std::endl;
-    std::cout << "Height: " << input->getOutputHeight() << std::endl;
-    std::cout << "Width: " << input->getOutputWidth() << std::endl;
+    std::shared_ptr<ILayer> input = std::make_shared<Input>("Input_layer", 1, 28*28);
+    
+    std::shared_ptr<ILayer> dense1 = std::make_shared<Dense>("Dense_layer_hidden1", input, 120);
+    std::shared_ptr<ILayer> activation1 = std::make_shared<Activation>("Activation_hidden1", dense1, std::make_shared<LeakyReLU>());
 
-    std::shared_ptr<ILayer> dense1 = std::make_shared<Dense>("Dense_layer_hidden", input, 6);
-    std::cout << "Name: " << dense1->getName() << std::endl;
-    std::cout << "Height: " << dense1->getOutputHeight() << std::endl;
-    std::cout << "Width: " << dense1->getOutputWidth() << std::endl;
+    std::shared_ptr<ILayer> dense2 = std::make_shared<Dense>("Dense_layer_hidden2", activation1, 90);
+    std::shared_ptr<ILayer> activation2 = std::make_shared<Activation>("Activation_hidden2", dense2, std::make_shared<LeakyReLU>());
 
-    std::shared_ptr<ILayer> activation1 = std::make_shared<Activation>("Activation_hidden", dense1, std::make_shared<Sigmoid>());
-    std::cout << "Name: " << activation1->getName() << std::endl;
-    std::cout << "Height: " << activation1->getOutputHeight() << std::endl;
-    std::cout << "Width: " << activation1->getOutputWidth() << std::endl;
+     std::shared_ptr<ILayer> dense3 = std::make_shared<Dense>("Dense_layer_hidden2", activation2, 60);
+     std::shared_ptr<ILayer> activation3 = std::make_shared<Activation>("Activation_hidden2", dense3, std::make_shared<LeakyReLU>());
 
-    std::shared_ptr<ILayer> dense2 = std::make_shared<Dense>("Dense_layer_output", activation1, 2);
-    std::cout << "Name: " << dense2->getName() << std::endl;
-    std::cout << "Height: " << dense2->getOutputHeight() << std::endl;
-    std::cout << "Width: " << dense2->getOutputWidth() << std::endl;
+    std::shared_ptr<ILayer> dense4 = std::make_shared<Dense>("Dense_layer_hidden2", activation3, 30);
+    std::shared_ptr<ILayer> activation4 = std::make_shared<Activation>("Activation_hidden2", dense4, std::make_shared<LeakyReLU>());
 
-    // std::shared_ptr<ILayer> activation2 = std::make_shared<Activation>("Activation_output", dense2, std::make_shared<Sigmoid>());
-    // std::cout << "Name: " << activation2->getName() << std::endl;
-    // std::cout << "Height: " << activation2->getOutputHeight() << std::endl;
-    // std::cout << "Width: " << activation2->getOutputWidth() << std::endl;
+    std::shared_ptr<ILayer> output = std::make_shared<Dense>("Dense_layer_output", activation4, 10);
 
     std::vector<std::shared_ptr<ILayer>> layers = {
         input,
         dense1,
         activation1, 
         dense2,
-        //activation2
+        activation2,
+        dense3,
+        activation3,
+        dense4,
+        activation4,
+        output
     };
+
+    for (auto layer : layers)
+    {
+        std::cout << "Name: " << layer->getName() << std::endl;
+        std::cout << "Height: " << layer->getOutputHeight() << std::endl;
+        std::cout << "Width: " << layer->getOutputWidth() << std::endl;
+    }
 
     std::cout << "End network architecture\n";
     std::cout << "======================================\n";
 
     return layers;
 }
-
 
 int main(int argc, char *argv[])
 {  
@@ -65,100 +69,38 @@ int main(int argc, char *argv[])
         executeTraining = true;
     }
 
-    // Dataset
-    // tuple(XOR-input, one-hot-vector)
-    std::vector<std::tuple<Matrix, Matrix>> dataXOR = {
-        std::tuple<Matrix, Matrix>(Matrix(1, 2, {0, 0}), Matrix(1, 2, {0, 1})),
-        std::tuple<Matrix, Matrix>(Matrix(1, 2, {0, 1}), Matrix(1, 2, {1, 0})),
-        std::tuple<Matrix, Matrix>(Matrix(1, 2, {1, 0}), Matrix(1, 2, {1, 0})),
-        std::tuple<Matrix, Matrix>(Matrix(1, 2, {1, 1}), Matrix(1, 2, {0, 1}))
-    };
-
-    // Create vector of layers
     auto layers = buildNetwork();
+    Network network(layers);
 
     if (!executeTraining)
     {
         return 0;
-    }
+    }   
 
-    std::cout << "=====================================\n";
-    std::cout << "Training\n";
+    // set number of threads
+    omp_set_num_threads(8);
 
-    int iterCnt = 0;
+    DataLoader trainDataLoader = DataLoader("../data/fashion_mnist_train_vectors.csv",
+                                            "../data/fashion_mnist_train_labels.csv");
 
-    while (true)
-    {   
-        if (iterCnt == 1000)
-        {
-            break;
-        }
+    DataLoader testDataLoader = DataLoader("../data/fashion_mnist_test_vectors.csv",
+                                           "../data/fashion_mnist_test_labels.csv");
 
-        std::cout << "------------------------------------------\n";
-        std::cout << "Iteration no." << ++iterCnt << " ";
-        
-        float error = 0.f;
-        for (auto [input, label] : dataXOR)
-        {
-            // Forward
-            auto output = input;
-            for (auto layer : layers)
-            {
-                output = layer->forward(output);
-            }
-
-            // error += ErrorFunc::meanSquareError(output, label);
-            // auto grad = output - label;
-
-            error += ErrorFunc::softmaxCrossentropyWithLogits(output, label)(0,0);
-            auto grad = ErrorFunc::gradSoftmaxCrossentropyWithLogits(output, label);
-
-            // Backward
-            for (auto it = layers.rbegin(); it != layers.rend(); ++it)
-            {   
-                auto layer = *it;
-                grad = layer->backward(grad);
-            }        
-        }
-        // Weight update
-        for (auto layer : layers)
-        {
-            layer->updateWeights();
-        } 
-
-        std::cout << "Error: " << error << std::endl;
-    }
-
-    std::cout << "------------------------------------------\n";
-    std::cout << "End training\n";
-    std::cout << "=====================================\n";
-
-    std::cout << "=====================================\n";
-    std::cout << "Prediction\n";
-
-    float error = 0.f;
-    for (auto [input, label] : dataXOR)
-    {
-        auto output = input;
-        for (auto layer : layers)
-        {
-            output = layer->forward(output);
-        }
-
-        auto probability = ErrorFunc::softMax(output);
-        //auto probability = output;
-        error += ErrorFunc::softmaxCrossentropyWithLogits(output, label)(0,0);
-
-        std::cout << "---------------\n";
-        std::cout << "Input: " << input;
-        std::cout << "Prediction: " << probability;
-        std::cout << "Label: " << label;
-    }
-
-    std::cout << "Prediction error " << error << std::endl;
+    // Change the leftmost number here for taking data out
+    //auto allTrainData = trainDataLoader.loadNOfEach(1000, 1, 784);
     
-    std::cout << "End prediction\n";
-    std::cout << "=====================================\n";
+    auto allTrainData = trainDataLoader.loadAllData(1, 784);
+    const auto& trainData = allTrainData;
+    auto testData = testDataLoader.loadAllData(1, 784);
 
+    std::random_shuffle(allTrainData.begin(), allTrainData.end(), [&](int i){ return std::rand() % i; } );
+    
+    //auto [validationData, trainData] = PreprocessingUtils::splitDataValidTrain(0.1, allTrainData);
+
+    float learningRate = 0.0005;
+    float momentumFactor = 0.9;
+
+    network.train(5, 100, learningRate, momentumFactor, trainData, testData);
+    
     return 0;
 }

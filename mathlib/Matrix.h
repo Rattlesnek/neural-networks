@@ -41,13 +41,11 @@ public:
 
     void applyFunc(std::function<float(float)> func);
 
+    Matrix func(std::function<float(float)> func) const;
+
     Matrix T() const;
 
     float sum() const;
-
-    std::vector<float>::iterator begin();
-
-    std::vector<float>::iterator end();
 
     // Operators
 public:
@@ -55,20 +53,14 @@ public:
 
     float operator()(int row, int col) const;
 
-    float& operator[](int i); // added this so we can more easily generate matrices for testing
-    
-    float operator[](int i) const;
-
     Matrix operator+(const Matrix& m2) const;
 
     Matrix operator-(const Matrix& m2) const;
 
     Matrix operator*(const Matrix& m2) const;
 
-    
-
     friend std::ostream& operator<<(std::ostream& stream, const Matrix& m);
-    friend bool operator==(const Matrix& m1,const Matrix& m2);
+
     // Static methods
 public:
     static Matrix arrayMult(const Matrix& m1, const Matrix& m2);
@@ -78,6 +70,5 @@ public:
 float round(float i);
 
 std::ostream& operator<<(std::ostream& stream, const Matrix& m);
-bool operator==(const Matrix& m1,const Matrix& m2);
 
 }

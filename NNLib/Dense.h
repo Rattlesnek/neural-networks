@@ -18,26 +18,33 @@ private:
     mathlib::Matrix biases; // column vector
 
     mathlib::Matrix totalWeightUpdate; // matrix
-    mathlib::Matrix totalBiasesUpdate; // column vector
+    mathlib::Matrix totalBiasUpdate; // column vector
+
+    mathlib::Matrix previousWeightUpdate;
+    mathlib::Matrix previousBiasUpdate;
+
+    mathlib::Matrix RMSpropWeight;
+    mathlib::Matrix RMSpropBias;
 
     // Constructors / destructor
 public:
     Dense(std::string name,
         std::shared_ptr<ILayer> previousLayer,
         int numOfNeurons,       
-        int batchSize = 1);
+        int PicDataSize = 1);
 
     // Methods
 public:
-    virtual mathlib::Matrix forward(const mathlib::Matrix& input) override;
 
-    virtual mathlib::Matrix backward(const mathlib::Matrix& gradient) override;  
+    virtual mathlib::Matrix forward(const mathlib::Matrix& input) const override;
 
-    virtual void updateWeights() override;
+    virtual mathlib::Matrix backward(const mathlib::Matrix& input, const mathlib::Matrix& gradient) override;  
+
+    virtual void updateWeights(float alpha, float momentumCoeficient) override;
 
     // Methods
 private:
-    void initializeWeightsAndBiases();
+    void initializeWeights();
 
 };
 

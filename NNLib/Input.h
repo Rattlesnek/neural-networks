@@ -17,9 +17,9 @@ public:
 
     // Methods
 public: 
-    virtual mathlib::Matrix forward(const mathlib::Matrix& input) override;
+    virtual mathlib::Matrix forward(const mathlib::Matrix& input) const override;
 
-    virtual mathlib::Matrix backward(const mathlib::Matrix& errorNeuronGradient) override;
+    virtual mathlib::Matrix backward(const mathlib::Matrix& input, const mathlib::Matrix& errorNeuronGradient) override;
 
 };
 

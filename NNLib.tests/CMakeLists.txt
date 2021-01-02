@@ -7,10 +7,12 @@ enable_testing()
 # Include directory with header files of the library to be tested
 include_directories(${CMAKE_SOURCE_DIR}/NNLib)
 include_directories(${CMAKE_SOURCE_DIR}/mathlib)
+include_directories(${CMAKE_SOURCE_DIR}/dataload)
 
 # Link directory with library to be tested
 link_directories(${CMAKE_BINARY_DIR}/NNLib)
 link_directories(${CMAKE_BINARY_DIR}/mathlib)
+link_directories(${CMAKE_BINARY_DIR}/dataload)
 
 file(GLOB_RECURSE CPP_FILES "*.cpp")
 file(GLOB_RECURSE H_FILES "*.h")
@@ -24,9 +26,10 @@ add_executable(${PROJECT_NAME}
 # Add dependencies and link libraries
 add_dependencies(${PROJECT_NAME} NNLib)
 add_dependencies(${PROJECT_NAME} mathlib)
+add_dependencies(${PROJECT_NAME} dataload)
 
 
-target_link_libraries(${PROJECT_NAME} NNLib mathlib gtest gtest_main pthread) 
+target_link_libraries(${PROJECT_NAME} NNLib mathlib dataload gtest gtest_main pthread) 
 
 # Add the test
 add_test(NAME ${PROJECT_NAME}
