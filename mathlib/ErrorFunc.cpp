@@ -35,15 +35,6 @@ Matrix ErrorFunc::softMax(Matrix input_copy)
             output(row, col) = (std::exp(input_copy(row, col)))/smSum;
         }    
     }
-    // std::cout << " SOFTMAX FUNCTION::" << std::endl;
-    // std::cout << "====================================="<< std::endl;
-    // std::cout << "input_copy matrix:" << std::endl;
-    // std::cout << input_copy;
-    // std::cout << "input_copy matrix:" << std::endl;
-    // std::cout << input_copy;
-    // std::cout << "output matrix:" << std::endl;
-    // std::cout << output;
-    // std::cout << "======================================="<< std::endl;
     return output;
 }
 
