@@ -20,13 +20,6 @@ float TrainUtils::piecewiseScheduling(float LR, int maxBatches, int currentBatch
     float thirdSector = secondSector + 0.3f;
     float fourthSector = thirdSector + 0.4f;
 
-<<<<<<< HEAD
-=======
-    float secondSector = 0.1f;
-    float thirdSector = secondSector + 0.3f;
-    float fourthSector = thirdSector + 0.4f;
-
->>>>>>> f9ee96e15af986c8262c78660ed0344a0090ca3d
     float secondFactor = 0.2f;
     float thirdFactor = 0.01f;
     float fourthFactor = 0.001f;
