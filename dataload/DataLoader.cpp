@@ -40,7 +40,6 @@ std::vector<float> DataLoader::loadPicture(int rows, int cols)
     {
         vec.emplace_back(std::stof(val));
     }
-    
 
     return vec;
 }
@@ -109,12 +108,6 @@ std::vector<PicData> DataLoader::loadNOfEach(int n, int rows, int cols)
     int count = 0;
     std::vector<int> counts(10);
     
-    
-    for (auto i = counts.begin(); i != counts.end(); ++i)
-    {
-    std::cout << *i << ' ';
-    }
-    std::cout << std::endl;
     while (pics.size() < 10 * n)
     {
         
@@ -135,11 +128,6 @@ std::vector<PicData> DataLoader::loadNOfEach(int n, int rows, int cols)
         
     }
     
-    for (auto i = counts.begin(); i != counts.end(); ++i)
-    {
-    std::cout << *i << ' ';
-    }
-    std::cout << std::endl;
     return pics;
 }
 
@@ -150,12 +138,6 @@ std::tuple<std::vector<PicData>, std::vector<PicData>> DataLoader::getValidTrain
     int count = 0;
     std::vector<int> counts(10);
     
-    
-    for (auto i = counts.begin(); i != counts.end(); ++i)
-    {
-    std::cout << *i << ' ';
-    }
-    std::cout << std::endl;
     while (true)
     {
         
@@ -180,11 +162,6 @@ std::tuple<std::vector<PicData>, std::vector<PicData>> DataLoader::getValidTrain
         
     }
     
-    for (auto i = counts.begin(); i != counts.end(); ++i)
-    {
-    std::cout << *i << ' ';
-    }
-    std::cout << std::endl;
     std::cout << "Valid data size: " << valid.size() << std::endl;
     std::cout << "Train data size: " << train.size() << std::endl;
 

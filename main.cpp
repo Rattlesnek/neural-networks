@@ -1,9 +1,7 @@
 #include <iostream>
 #include <memory>
-#include <algorithm>
 #include <string>
 #include <omp.h>
-#include <unistd.h>
 
 #include "MathLib.hpp"
 #include "DataLoad.hpp"
@@ -16,22 +14,22 @@ using namespace nnlib;
 
 std::vector<std::shared_ptr<ILayer>> buildNetwork()
 {
-    std::cout << "======================================\n";
+    std::cout << "=====================================\n";
     std::cout << "Network architecture\n";
 
     std::shared_ptr<ILayer> input = std::make_shared<Input>("Input_layer", 1, 28*28);
     
-    std::shared_ptr<ILayer> dense1 = std::make_shared<Dense>("Dense_layer_hidden1", input, 120);
-    std::shared_ptr<ILayer> activation1 = std::make_shared<Activation>("Activation_hidden1", dense1, std::make_shared<LeakyReLU>());
+    std::shared_ptr<ILayer> dense1 = std::make_shared<Dense>("Dense_layer_1", input, 120);
+    std::shared_ptr<ILayer> activation1 = std::make_shared<Activation>("Activation_1", dense1, std::make_shared<LeakyReLU>());
 
-    std::shared_ptr<ILayer> dense2 = std::make_shared<Dense>("Dense_layer_hidden2", activation1, 90);
-    std::shared_ptr<ILayer> activation2 = std::make_shared<Activation>("Activation_hidden2", dense2, std::make_shared<LeakyReLU>());
+    std::shared_ptr<ILayer> dense2 = std::make_shared<Dense>("Dense_layer_2", activation1, 90);
+    std::shared_ptr<ILayer> activation2 = std::make_shared<Activation>("Activation_2", dense2, std::make_shared<LeakyReLU>());
 
-     std::shared_ptr<ILayer> dense3 = std::make_shared<Dense>("Dense_layer_hidden2", activation2, 60);
-     std::shared_ptr<ILayer> activation3 = std::make_shared<Activation>("Activation_hidden2", dense3, std::make_shared<LeakyReLU>());
+     std::shared_ptr<ILayer> dense3 = std::make_shared<Dense>("Dense_layer_3", activation2, 60);
+     std::shared_ptr<ILayer> activation3 = std::make_shared<Activation>("Activation_3", dense3, std::make_shared<LeakyReLU>());
 
-    std::shared_ptr<ILayer> dense4 = std::make_shared<Dense>("Dense_layer_hidden2", activation3, 30);
-    std::shared_ptr<ILayer> activation4 = std::make_shared<Activation>("Activation_hidden2", dense4, std::make_shared<LeakyReLU>());
+    std::shared_ptr<ILayer> dense4 = std::make_shared<Dense>("Dense_layer_4", activation3, 30);
+    std::shared_ptr<ILayer> activation4 = std::make_shared<Activation>("Activation_4", dense4, std::make_shared<LeakyReLU>());
 
     std::shared_ptr<ILayer> output = std::make_shared<Dense>("Dense_layer_output", activation4, 10);
 
@@ -56,70 +54,46 @@ std::vector<std::shared_ptr<ILayer>> buildNetwork()
     }
 
     std::cout << "End network architecture\n";
-    std::cout << "======================================\n";
-
+    std::cout << "=====================================\n";
     return layers;
 }
 
 int main(int argc, char *argv[])
 {  
-    bool executeTraining = false;
-    if (argc == 2 && argv[1] == std::string("-t"))
-    {
-        executeTraining = true;
-    }
-
+    // Set number of threads
+    omp_set_num_threads(8);
+    
+    // Create network
     auto layers = buildNetwork();
     Network network(layers);
 
-    if (!executeTraining)
-    {
-        return 0;
-    }   
+    // Load train data
+    DataLoader trainDataLoader("../data/fashion_mnist_train_vectors.csv",
+                               "../data/fashion_mnist_train_labels.csv");
+    auto trainData = trainDataLoader.loadAllData(1, 784);
+    // Shuffle train data
+    std::random_shuffle(trainData.begin(), trainData.end(), [&](int i){ return std::rand() % i; });
 
-    // set number of threads
-    omp_set_num_threads(8);
-
-    DataLoader trainDataLoader = DataLoader("../data/fashion_mnist_train_vectors.csv",
-                                            "../data/fashion_mnist_train_labels.csv");
-
-    DataLoader testDataLoader = DataLoader("../data/fashion_mnist_test_vectors.csv",
-                                           "../data/fashion_mnist_test_labels.csv");
-
-    // Change the leftmost number here for taking data out
-    auto allTrainData = trainDataLoader.loadNOfEach(300, 1, 784);
-    // auto allTrainData = trainDataLoader.loadAllData(1, 784);
-    const auto& trainData = allTrainData;
-
-    auto testData = testDataLoader.loadAllPictures(1, 784);
-    std::cout << testData.size() << " lines in testData" << std::endl;
-    
-    std::random_shuffle(allTrainData.begin(), allTrainData.end(), [&](int i){ return std::rand() % i; } );
-    
-    //auto [testData, trainData] = PreprocessingUtils::splitDataValidTrain(0.1, allTrainData);
-
+    // Train
     float learningRate = 0.0005;
     float momentumFactor = 0.9;
+    network.train(5, 100, learningRate, momentumFactor, trainData);
 
-    network.train(2, 100, learningRate, momentumFactor, trainData);
-
-    // std::vector<Matrix> mats;
-    // for (const auto& pic : testData)
-    // {
-    //     mats.emplace_back(pic.getMat());
-    // }
-
+    // Load test data
+    DataLoader testDataLoader("../data/fashion_mnist_test_vectors.csv",
+                              "../data/fashion_mnist_test_labels.csv");
+    auto testData = testDataLoader.loadAllPictures(1, 784);
+    
+    // Predict
     auto predictionOutputs = network.predict(testData);
-
-    int i;
+    
+    // Write predictions to output file
+    std::ofstream actualPredictions("../actualPredictions");
     for (const auto& output : predictionOutputs)
     {
-        
-        std::cout << ++i << ": " << output;
+        actualPredictions << Network::findMaxIndex(output) << std::endl;
     }
-
-    std::
-    
+    actualPredictions.close();
 
     return 0;
 }

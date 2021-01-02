@@ -198,7 +198,6 @@ std::vector<Matrix> Network::predict(const std::vector<Matrix>& predictionInputs
 {
     std::vector<Matrix> outputProbabilities;
     
-    #pragma omp parallel for
     for (const auto& input : predictionInputs)
     {
         // Forward
@@ -209,19 +208,16 @@ std::vector<Matrix> Network::predict(const std::vector<Matrix>& predictionInputs
         }
         auto probability = ErrorFunc::softMax(output);
         
-        #pragma omp critical
-        {
-            outputProbabilities.emplace_back(probability);
-        }
+        outputProbabilities.emplace_back(probability);
     }
 
     return outputProbabilities;
 }
 
-bool Network::correctPrediction(const Matrix& pred, const std::vector<int>& labels)
+int Network::findMaxIndex(const Matrix& pred)
 {
     float maxPred = -FLT_MAX;
-    int maxIndex = 0;
+    int maxIndex = -1;
     for (int i = 0; i < 10; i++)
     {
         if (pred(0, i) > maxPred)
@@ -230,10 +226,11 @@ bool Network::correctPrediction(const Matrix& pred, const std::vector<int>& labe
             maxIndex = i;
         }
     }
-    
-    if (maxIndex == labels[0])
-    {
-        return true;
-    }
-    return false;
+    return maxIndex;
+}
+
+bool Network::correctPrediction(const Matrix& pred, const std::vector<int>& labels)
+{
+    int maxIndex = findMaxIndex(pred);
+    return (maxIndex == labels[0]);
 }

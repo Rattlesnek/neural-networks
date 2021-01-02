@@ -34,8 +34,11 @@ public:
 
     std::vector<mathlib::Matrix> predict(const std::vector<mathlib::Matrix>& predictionInputs);
 
-private:
-    bool correctPrediction(const mathlib::Matrix& pred, const std::vector<int>& labels);
+    // Static methods
+public:
+    static int findMaxIndex(const mathlib::Matrix& pred);
+
+    static bool correctPrediction(const mathlib::Matrix& pred, const std::vector<int>& labels);
 
 };
 
