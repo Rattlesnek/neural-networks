@@ -67,12 +67,11 @@ std::vector<PicData> DataLoader::loadAllData(int rows, int cols)
         }
         catch(const std::exception& e)
         {
-            std::cout << "end of file!\n";
             break;
         }
         count++;
     }
-    std::cout << "number of pics: " << count << std::endl;
+    
     return pics;
 }
 
@@ -81,7 +80,7 @@ std::vector<PicData> DataLoader::loadNOfEach(int n, int rows, int cols)
     std::vector<PicData> pics;
     int count = 0;
     std::vector<int> counts(10);
-    std::cout << "startcounts: "<<  std::endl;
+    
     
     for (auto i = counts.begin(); i != counts.end(); ++i)
     {
@@ -102,12 +101,12 @@ std::vector<PicData> DataLoader::loadNOfEach(int n, int rows, int cols)
         }
         catch(const EOFException& e)
         {
-            std::cout << "end of file!\n";
+            
             break;
         }
         
     }
-    std::cout << "endcounts: "<< std::endl;
+    
     for (auto i = counts.begin(); i != counts.end(); ++i)
     {
     std::cout << *i << ' ';
@@ -122,7 +121,7 @@ std::tuple<std::vector<PicData>, std::vector<PicData>> DataLoader::getValidTrain
     std::vector<PicData> train;
     int count = 0;
     std::vector<int> counts(10);
-    std::cout << "startcounts: "<<  std::endl;
+    
     
     for (auto i = counts.begin(); i != counts.end(); ++i)
     {
@@ -147,12 +146,12 @@ std::tuple<std::vector<PicData>, std::vector<PicData>> DataLoader::getValidTrain
         }
         catch(const EOFException& e)
         {
-            std::cout << "end of file!\n";
+            
             break;
         }
         
     }
-    std::cout << "endcounts: "<< std::endl;
+    
     for (auto i = counts.begin(); i != counts.end(); ++i)
     {
     std::cout << *i << ' ';

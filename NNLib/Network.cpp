@@ -55,8 +55,14 @@ void Network::train(const int numOfEpochs,
         {           
             std::vector<PicData> batch(trainData.begin() + datasetIndex, trainData.begin() + datasetIndex + batchSize);
 
+<<<<<<< HEAD
             float alpha = TrainUtils::piecewiseScheduling(learningRate, maxBatches, currentBatch);
 
+=======
+            float alpha;
+            alpha = TrainUtils::piecewiseScheduling(learningRate, maxBatches, currentBatch);
+            
+>>>>>>> f9ee96e15af986c8262c78660ed0344a0090ca3d
             auto [batchAccuracy, meanBatchLoss] = trainOnBatch(batch, alpha, momentumFactor);
 
             std::cout << meanBatchLoss << ", " << std::flush;

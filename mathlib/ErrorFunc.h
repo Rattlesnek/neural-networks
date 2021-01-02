@@ -13,9 +13,9 @@ public:
     // Methods
 public:
     
-    static Matrix softMax(const Matrix& input);
+    static Matrix softMax(Matrix input_copy);
 
-    static Matrix softmaxCrossentropyWithLogits(const Matrix& input, const std::vector<int>& label);
+    static Matrix softmaxCrossentropyWithLogits(Matrix input_copy, const std::vector<int>& label);
     
     static Matrix gradSoftmaxCrossentropyWithLogits(const Matrix& input, const std::vector<int>& label);
 };

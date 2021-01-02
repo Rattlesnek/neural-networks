@@ -27,8 +27,8 @@ std::vector<std::shared_ptr<ILayer>> buildNetwork()
     std::shared_ptr<ILayer> dense2 = std::make_shared<Dense>("Dense_layer_hidden2", activation1, 90);
     std::shared_ptr<ILayer> activation2 = std::make_shared<Activation>("Activation_hidden2", dense2, std::make_shared<LeakyReLU>());
 
-    std::shared_ptr<ILayer> dense3 = std::make_shared<Dense>("Dense_layer_hidden2", activation2, 60);
-    std::shared_ptr<ILayer> activation3 = std::make_shared<Activation>("Activation_hidden2", dense3, std::make_shared<LeakyReLU>());
+     std::shared_ptr<ILayer> dense3 = std::make_shared<Dense>("Dense_layer_hidden2", activation2, 60);
+     std::shared_ptr<ILayer> activation3 = std::make_shared<Activation>("Activation_hidden2", dense3, std::make_shared<LeakyReLU>());
 
     std::shared_ptr<ILayer> dense4 = std::make_shared<Dense>("Dense_layer_hidden2", activation3, 30);
     std::shared_ptr<ILayer> activation4 = std::make_shared<Activation>("Activation_hidden2", dense4, std::make_shared<LeakyReLU>());
