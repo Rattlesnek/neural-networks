@@ -21,16 +21,19 @@ std::vector<std::shared_ptr<ILayer>> buildNetwork()
 
     std::shared_ptr<ILayer> input = std::make_shared<Input>("Input_layer", 1, 28*28);
     
-    std::shared_ptr<ILayer> dense1 = std::make_shared<Dense>("Dense_layer_hidden1", input, 220);
+    std::shared_ptr<ILayer> dense1 = std::make_shared<Dense>("Dense_layer_hidden1", input, 120);
     std::shared_ptr<ILayer> activation1 = std::make_shared<Activation>("Activation_hidden1", dense1, std::make_shared<LeakyReLU>());
 
-    std::shared_ptr<ILayer> dense2 = std::make_shared<Dense>("Dense_layer_hidden2", activation1, 120);
+    std::shared_ptr<ILayer> dense2 = std::make_shared<Dense>("Dense_layer_hidden2", activation1, 90);
     std::shared_ptr<ILayer> activation2 = std::make_shared<Activation>("Activation_hidden2", dense2, std::make_shared<LeakyReLU>());
 
-    std::shared_ptr<ILayer> dense3 = std::make_shared<Dense>("Dense_layer_hidden2", activation2, 60);
-    std::shared_ptr<ILayer> activation3 = std::make_shared<Activation>("Activation_hidden2", dense3, std::make_shared<LeakyReLU>());
+     std::shared_ptr<ILayer> dense3 = std::make_shared<Dense>("Dense_layer_hidden2", activation2, 60);
+     std::shared_ptr<ILayer> activation3 = std::make_shared<Activation>("Activation_hidden2", dense3, std::make_shared<LeakyReLU>());
 
-    std::shared_ptr<ILayer> output = std::make_shared<Dense>("Dense_layer_output", activation3, 10);
+    std::shared_ptr<ILayer> dense4 = std::make_shared<Dense>("Dense_layer_hidden2", activation3, 30);
+    std::shared_ptr<ILayer> activation4 = std::make_shared<Activation>("Activation_hidden2", dense4, std::make_shared<LeakyReLU>());
+
+    std::shared_ptr<ILayer> output = std::make_shared<Dense>("Dense_layer_output", activation4, 10);
 
     std::vector<std::shared_ptr<ILayer>> layers = {
         input,
@@ -40,6 +43,8 @@ std::vector<std::shared_ptr<ILayer>> buildNetwork()
         activation2,
         dense3,
         activation3,
+        dense4,
+        activation4,
         output
     };
 
@@ -92,10 +97,10 @@ int main(int argc, char *argv[])
     
     //auto [validationData, trainData] = PreprocessingUtils::splitDataValidTrain(0.1, allTrainData);
 
-    float learningRate = 0.0002;
+    float learningRate = 0.0005;
     float momentumFactor = 0.9;
 
-    network.train(6, 100, learningRate, momentumFactor, trainData, testData);
+    network.train(5, 100, learningRate, momentumFactor, trainData, testData);
     
     return 0;
 }

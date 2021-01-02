@@ -7,39 +7,38 @@
 using namespace mathlib;
 
 
-Matrix ErrorFunc::softMax(const Matrix& input)
+Matrix ErrorFunc::softMax(Matrix input_copy)
 {
-    Matrix input_copy = input;
-    Matrix output(input.getRows(), input.getCols());
-    for (int row = 0; row < input.getRows(); row++ )
+    Matrix output(input_copy.getRows(), input_copy.getCols());
+    for (int row = 0; row < input_copy.getRows(); row++ )
     {
     
         float max = -FLT_MAX;
-        for (int col = 0; col < input.getCols(); col++)
+        for (int col = 0; col < input_copy.getCols(); col++)
         {
             if (max < input_copy(row, col))
             {
                 max = input_copy(row, col);
             }
         }
-        for (int col = 0; col < input.getCols(); col++)
+        for (int col = 0; col < input_copy.getCols(); col++)
         {
             input_copy(row, col) = input_copy(row, col) - max;
         }
         float smSum(0.0);
-        for (int col = 0; col < input.getCols(); col++)
+        for (int col = 0; col < input_copy.getCols(); col++)
         {
             smSum = smSum + std::exp(input_copy(row, col));
         }
-        for (int col = 0; col < input.getCols(); col++)
+        for (int col = 0; col < input_copy.getCols(); col++)
         {
             output(row, col) = (std::exp(input_copy(row, col)))/smSum;
         }    
     }
     // std::cout << " SOFTMAX FUNCTION::" << std::endl;
     // std::cout << "====================================="<< std::endl;
-    // std::cout << "input matrix:" << std::endl;
-    // std::cout << input;
+    // std::cout << "input_copy matrix:" << std::endl;
+    // std::cout << input_copy;
     // std::cout << "input_copy matrix:" << std::endl;
     // std::cout << input_copy;
     // std::cout << "output matrix:" << std::endl;
@@ -49,33 +48,33 @@ Matrix ErrorFunc::softMax(const Matrix& input)
 }
 
 // jeden column 
-Matrix ErrorFunc::softmaxCrossentropyWithLogits(const Matrix& input, const std::vector<int>& label)
+Matrix ErrorFunc::softmaxCrossentropyWithLogits(Matrix input_copy, const std::vector<int>& label)
 {
-    Matrix input_copy = input;
-    Matrix output(input.getRows(), 1);
+    
+    Matrix output(input_copy.getRows(), 1);
     float max = 0.f;
-    for (int row = 0; row < input.getRows(); row++ )
+    for (int row = 0; row < input_copy.getRows(); row++ )
     {
         float max = -FLT_MAX;
-        for (int col = 0; col < input.getCols(); col++)
+        for (int col = 0; col < input_copy.getCols(); col++)
         {
             if (max < input_copy(row, col))
             {
                 max = input_copy(row, col);
             }
         }
-        for (int col = 0; col < input.getCols(); col++)
+        for (int col = 0; col < input_copy.getCols(); col++)
         {
             input_copy(row, col) = input_copy(row, col) - max;
         }
         float smSum(0.0);
-        for (int col = 0; col < input.getCols(); col++)
+        for (int col = 0; col < input_copy.getCols(); col++)
         {
             smSum = smSum + std::exp(input_copy(row, col));
         }
         output(row, 0) = std::log(smSum);
     }
-    for (int row = 0; row < input.getRows(); row++ )
+    for (int row = 0; row < input_copy.getRows(); row++ )
     {
             output(row, 0) -= input_copy(row, label[row]);
     }
@@ -83,7 +82,7 @@ Matrix ErrorFunc::softmaxCrossentropyWithLogits(const Matrix& input, const std::
     return output;
 }
 
-//matica normalna size == input.size()
+//matica normalna size == input_copy.size()
 Matrix ErrorFunc::gradSoftmaxCrossentropyWithLogits(const Matrix& input, const std::vector<int>& label)
 {
     Matrix softmax = softMax(input);
