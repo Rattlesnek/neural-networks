@@ -18,7 +18,7 @@ TEST(DataloadTest, DataLoadAllBasicTest)
 TEST(DataloadTest, DataLoadOneLineBasicTest)
 {
     DataLoader dl("../dataload.tests/test_vector.csv", "../dataload.tests/test_labels.csv");
-    PicData pd = dl.loadPicture(28,28);
+    PicData pd = PicData(dl.loadPicture(28,28),dl.loadLabel(), 28,28);
     EXPECT_EQ(pd.getMat()(0,8) * 255, 154.0f);
     EXPECT_EQ(pd.getMat()(0,22) * 255, 89.0f);
 }

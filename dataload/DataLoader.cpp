@@ -24,7 +24,7 @@ DataLoader::~DataLoader()
     labels.close();
 }
 
-PicData DataLoader::loadPicture(int rows, int cols)
+std::vector<float> DataLoader::loadPicture(int rows, int cols)
 {
     std::string line;
     std::string label;
@@ -36,11 +36,19 @@ PicData DataLoader::loadPicture(int rows, int cols)
     
     std::stringstream ssline(line);
     std::string val;
-    std::vector<int> oneHotIndex(1);
     while (std::getline(ssline, val, ','))
     {
         vec.emplace_back(std::stof(val));
     }
+    
+
+    return vec;
+}
+
+std::vector<int> DataLoader::loadLabel()
+{
+    std::string label;
+    std::vector<int> oneHotIndex(1);
     if (std::getline(labels, label))
     {
         oneHotIndex[0] = std::stoi(label);
@@ -49,27 +57,47 @@ PicData DataLoader::loadPicture(int rows, int cols)
     {
         throw EOFException("end of file labels reached!");
     }
-    PicData pic(vec, oneHotIndex, rows, cols);
-
-    return pic;
+    return oneHotIndex;
 }
 
 std::vector<PicData> DataLoader::loadAllData(int rows, int cols)
 {
-    int count = 0;
+    
     std::vector<PicData> pics;
     while (true)
     {
 
         try
         {
-            pics.emplace_back(loadPicture(rows, cols));
+            PicData pic = PicData(loadPicture(rows, cols), loadLabel(), rows, cols);
+            pics.emplace_back(pic);
         }
         catch(const std::exception& e)
         {
             break;
         }
-        count++;
+        
+    }
+    
+    return pics;
+}
+
+std::vector<mathlib::Matrix> DataLoader::loadAllPictures(int rows, int cols)
+{
+    std::vector<mathlib::Matrix> pics;
+    while (true)
+    {
+        
+        try
+        {
+            auto pic = mathlib::Matrix(rows,cols,loadPicture(rows, cols));
+            pics.emplace_back(pic);
+        }
+        catch(const std::exception& e)
+        {
+            break;
+        }
+        
     }
     
     return pics;
@@ -92,7 +120,7 @@ std::vector<PicData> DataLoader::loadNOfEach(int n, int rows, int cols)
         
         try
         {
-            auto pic = loadPicture(rows, cols);
+            auto pic = PicData(loadPicture(rows, cols), loadLabel(), rows, cols);
             if (counts[pic.getLabels()[0]] < n)
             {
                 pics.emplace_back(pic);
@@ -133,7 +161,7 @@ std::tuple<std::vector<PicData>, std::vector<PicData>> DataLoader::getValidTrain
         
         try
         {
-            auto pic = loadPicture(rows, cols);
+            auto pic = PicData(loadPicture(rows, cols), loadLabel(), rows, cols);
             if (counts[pic.getLabels()[0]] < 600)
             {
                 valid.emplace_back(pic);
