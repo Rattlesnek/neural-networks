@@ -85,11 +85,12 @@ void Network::train(const int numOfEpochs,
             std::cout << "Validation\n";
             std::cout << "Validation accuracy: " << validAccuracy * 100 << std::endl;
             std::cout << "Validation loss: " << meanValidLoss << std::endl;
-            std::cout << "------------------------------------------\n";
         }
+        std::cout << "------------------------------------------\n";
     }
 
     auto totalEndTime = std::chrono::steady_clock::now();
+
     std::cout << "Total elapsed time: " << std::chrono::duration_cast<std::chrono::seconds>(totalEndTime - totalStartTime).count()
     << " sec" << std::endl;
     std::cout << "=====================================\n";

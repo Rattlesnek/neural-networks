@@ -80,20 +80,21 @@ int main(int argc, char *argv[])
     network.train(5, 100, learningRate, momentumFactor, trainData);
 
     // Load test data
-    DataLoader testDataLoader("../data/fashion_mnist_test_vectors.csv",
-                              "../data/fashion_mnist_test_labels.csv");
+    DataLoader testDataLoader("../data/fashion_mnist_test_vectors.csv");
     auto testData = testDataLoader.loadAllPictures(1, 784);
     
     // Predict
     auto predictionOutputs = network.predict(testData);
     
     // Write predictions to output file
+    std::cout << "Writing predictions to file: actualPredictions ... ";   
     std::ofstream actualPredictions("../actualPredictions");
     for (const auto& output : predictionOutputs)
     {
         actualPredictions << Network::findMaxIndex(output) << std::endl;
     }
     actualPredictions.close();
+    std::cout << "Done" << std::endl;
 
     return 0;
 }
