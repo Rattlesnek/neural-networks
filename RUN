@@ -14,3 +14,5 @@ make -j4
 # Run main
 ./main
 
+# Go back to project root folder
+cd ..

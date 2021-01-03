@@ -109,6 +109,7 @@ std::vector<mathlib::Matrix> DataLoader::loadAllPictures(int rows, int cols)
         try
         {
             auto pic = mathlib::Matrix(rows,cols,loadPicture(rows, cols));
+            pic.applyFunc([](float x) -> float { return x / 255.f; });
             pics.emplace_back(pic);
         }
         catch(const std::exception& e)
