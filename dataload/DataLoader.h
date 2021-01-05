@@ -13,20 +13,22 @@ class DataLoader
 {
     //Files
 private:
-    std::ifstream imageVecs;
-    std::ifstream labels;
+    std::ifstream ifImages;
+    std::ifstream ifLabels;
 
     //Constructors / destructor
 public:
     DataLoader(std::string pathVec, std::string pathLabels);
+    DataLoader(std::string pathVec);
     ~DataLoader();
 
     // Methods
 public:
-    PicData loadPicture(int rows, int cols);
+    std::vector<float> loadPicture(int rows, int cols);
+    std::vector<int> loadLabel();
     std::vector<PicData> loadAllData(int rows, int cols);
+    std::vector<mathlib::Matrix> loadAllPictures(int rows, int cols);
     std::vector<PicData> loadNOfEach(int n, int rows, int cols);
-    std::tuple<std::vector<PicData>, std::vector<PicData>> getValidTrain(int rows, int cols);
     
 };
 

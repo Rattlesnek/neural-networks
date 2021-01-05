@@ -3,7 +3,7 @@
 # Load needed modules
 source load_modules.sh
 
-# Create build directory
+# Create build directory and go inside
 mkdir build/
 cd build/
 
@@ -13,3 +13,6 @@ make -j4
 
 # Run main
 ./main
+
+# Go back to project root folder
+cd ..
